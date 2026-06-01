@@ -116,14 +116,14 @@
     <div style="width:44px;"></div>
   </div>
   <div class="practice-container">
-    <div class="practice-header">
-      <div class="progress-info"><span id="question-num">1</span> / <span id="question-total">20</span></div>
-      <div class="score-display">
-        <span class="score-correct" id="correct-count">0</span>
-        <span style="color:var(--text-light);margin:0 4px;">/</span>
-        <span class="score-wrong" id="wrong-count">0</span>
+    <div class="prac-header">
+      <div class="prac-progress"><span id="question-num">1</span>/<span id="question-total">20</span></div>
+      <div class="prac-score">
+        <span class="prac-correct" id="correct-count">0</span>
+        <span class="prac-sep">/</span>
+        <span class="prac-wrong" id="wrong-count">0</span>
       </div>
-      <button class="btn btn-sm btn-text" onclick="quitPractice()">退出</button>
+      <button class="prac-quit" onclick="quitPractice()">✕</button>
     </div>
     <div class="progress-track">
       <div class="progress-fill" id="progress-fill" style="width:0%"></div>
@@ -160,7 +160,8 @@
       <div class="kp-row">
         <button class="kp-btn kp-prac" data-val="0">0</button>
         <button class="kp-btn kp-prac" data-val=".">.</button>
-        <button class="kp-btn kp-submit-prac" id="prac-submit">确定</button>
+        <button class="kp-btn kp-prac" data-val="/">/</button>
+        <button class="kp-btn kp-submit-prac" id="prac-submit" onclick="(function(){ if(document.querySelector('#page-practice.active,#page-retry.active')) submitAnswer(); })()">确定</button>
       </div>
     </div>
     <div class="feedback-area" id="feedback-area" style="display:none;">

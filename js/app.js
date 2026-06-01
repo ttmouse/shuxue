@@ -221,7 +221,8 @@ function submitAnswer() {
     }
 
     const idx = state.currentIndex;
-    const q = state.questions[idx];
+    const q = state.questions?.[idx];
+    if (!q) return;
     const correctAnswer = q.answer.trim();
 
     // 判断答案
@@ -239,31 +240,37 @@ function submitAnswer() {
         state.correctCount++;
         if (display) { display.className = 'prac-display-text correct'; display.textContent = '✓ ' + userAnswer; }
         if (Framework.sound) Framework.sound.playCorrect();
-        showFeedback('correct', q);
-    } else {
-        state.wrongCount++;
-        if (display) { display.className = 'prac-display-text wrong'; display.textContent = '✗ ' + userAnswer; }
-        if (Framework.sound) Framework.sound.playWrong();
-        showFeedback('wrong', q, userAnswer);
-
-        // 记录错题
-        WrongBook.add({
-            question: q.question,
-            correctAnswer: q.answer,
-            userAnswer: userAnswer,
-            type: q.type,
-            typeLabel: q.typeLabel,
-        });
+        // 答对自动跳转下一题
+        if (kp) kp.style.display = 'none';
+        setTimeout(() => nextQuestion(), 400);
+        $('correct-count').textContent = state.correctCount;
+        $('wrong-count').textContent = state.wrongCount;
+        return;
     }
+
+    // 答错：显示正确答案 + 下一题按钮
+    state.wrongCount++;
+    if (display) { display.className = 'prac-display-text wrong'; display.textContent = '✗ ' + userAnswer + '  ✓ ' + q.answer; }
+    if (Framework.sound) Framework.sound.playWrong();
+    WrongBook.add({
+        question: q.question,
+        correctAnswer: q.answer,
+        userAnswer: userAnswer,
+        type: q.type,
+        typeLabel: q.typeLabel,
+    });
+    if (kp) kp.style.display = 'none';
+    const nextBar = document.getElementById('prac-next-bar') || createNextBar();
+    nextBar.style.display = 'flex';
 
     $('correct-count').textContent = state.correctCount;
     $('wrong-count').textContent = state.wrongCount;
 }
 
 function compareAnswers(user, correct) {
-    // 去除两端空格
-    user = user.trim();
-    correct = correct.trim();
+    // 统一符号（自定义键盘用的是 Unicode 减号）
+    user = user.trim().replace(/−/g, '-');
+    correct = correct.trim().replace(/−/g, '-');
 
     // 直接字符串比较
     if (user === correct) return true;
@@ -305,6 +312,10 @@ function showFeedback(result, q, userAnswer) {
     const icon = $('feedback-icon');
     const text = $('feedback-text');
     const detail = $('feedback-detail');
+
+    // 隐藏键盘，用反馈替换其位置
+    const kp = document.getElementById('prac-keypad');
+    if (kp) kp.style.display = 'none';
 
     area.style.display = 'block';
 
@@ -363,13 +374,29 @@ function showFeedback(result, q, userAnswer) {
     $('next-btn').textContent = isLast ? '查看结果' : '下一题';
 }
 
+function createNextBar() {
+  const bar = document.createElement('div');
+  bar.id = 'prac-next-bar';
+  bar.className = 'prac-next-bar';
+  bar.style.display = 'none';
+  const isLast = state.currentIndex >= state.questions.length - 1;
+  bar.innerHTML = `<button class="kp-btn kp-submit-prac" onclick="nextQuestion()" style="flex:1;">${isLast ? '查看结果' : '下一题'}</button>`;
+  const kp = document.getElementById('prac-keypad');
+  if (kp && kp.parentNode) kp.parentNode.insertBefore(bar, kp.nextSibling);
+  return bar;
+}
+
 function nextQuestion() {
     if (Framework.sound) Framework.sound.playNext();
     state.currentIndex++;
 
     // 恢复键盘
     const kp = document.getElementById('prac-keypad');
-    if (kp) kp.style.pointerEvents = '';
+    if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
+    const nb = document.getElementById('prac-next-bar');
+    if (nb) nb.style.display = 'none';
+    const fb = document.getElementById('feedback-area');
+    if (fb) fb.style.display = 'none';
 
     if (state.currentIndex >= state.questions.length) {
         showResult();
@@ -767,12 +794,9 @@ function pracKeypadInit() {
   if (!keypad) return;
   const display = document.getElementById('prac-display-text');
 
-  // 确定按钮
-  document.getElementById('prac-submit')?.addEventListener('click', submitAnswer);
-
   keypad.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
-    if (!btn) return;
+    if (!btn || btn.id === 'prac-submit') return;
     const val = btn.dataset.val;
 
     if (val === 'bksp') {
