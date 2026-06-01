@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学口算大闯关</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ===== 首页 ===== -->
+    <div id="page-home" class="page active">
+        <div class="home-container">
+            <div class="logo-area">
+                <div class="logo-icon">🧮</div>
+                <h1>数学口算大闯关</h1>
+                <p class="subtitle">小学口算 · 知识点专项练习</p>
+            </div>
+            <div class="home-buttons">
+                <button class="btn btn-primary btn-large" onclick="showPage('page-settings')">
+                    开始练习
+                </button>
+                <button class="btn btn-secondary btn-large" onclick="showWrongBook()">
+                    错题本
+                </button>
+            </div>
+            <div class="home-stats" id="home-stats">
+                <!-- 统计信息由 JS 填充 -->
+            </div>
+            <div class="home-day-stats" id="home-day-stats">
+                <!-- 今日统计由 JS 填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 设置页 ===== -->
+    <div id="page-settings" class="page">
+        <div class="settings-container">
+            <h2>练习设置</h2>
+
+            <div class="setting-group">
+                <label>选题（按年级分类，默认全选）</label>
+                <div id="topic-select">
+                    <!-- 由 JS 通过 Knowledge 渲染 -->
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>题目数量</label>
+                <div class="count-selector" id="count-select">
+                    <button class="count-btn" data-count="10">10 题</button>
+                    <button class="count-btn active" data-count="20">20 题</button>
+                    <button class="count-btn" data-count="30">30 题</button>
+                    <button class="count-btn" data-count="60">60 题</button>
+                    <button class="count-btn" data-count="100">100 题</button>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>难度</label>
+                <div class="difficulty-selector" id="difficulty-select">
+                    <button class="diff-btn" data-diff="easy">简单</button>
+                    <button class="diff-btn active" data-diff="medium">中等</button>
+                    <button class="diff-btn" data-diff="hard">困难</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="startPractice()">
+                开始答题
+            </button>
+            <button class="btn btn-text" onclick="showPage('page-home')">返回首页</button>
+        </div>
+    </div>
+
+    <!-- ===== 答题页 ===== -->
+    <div id="page-practice" class="page">
+        <div class="practice-container">
+            <!-- 顶部信息栏 -->
+            <div class="practice-header">
+                <div class="progress-info">
+                    <span id="question-num">1</span> / <span id="question-total">20</span>
+                </div>
+                <div class="score-display">
+                    <span class="score-correct" id="correct-count">0</span>
+                    <span style="color:var(--text-light);margin:0 4px;">/</span>
+                    <span class="score-wrong" id="wrong-count">0</span>
+                </div>
+                <button class="btn btn-sm btn-text" onclick="quitPractice()">退出</button>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+
+            <!-- 题目区域 -->
+            <div class="question-area" id="question-area">
+                <div class="question-number" id="question-type-label">第 1 题 · 加减法</div>
+                <div class="question-text" id="question-text">123 + 456 = ?</div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="answer-area" id="answer-area">
+                <div class="input-group">
+                    <input type="text" id="answer-input" class="answer-input"
+                           inputmode="decimal" autocomplete="off"
+                           placeholder="输入你的答案…"
+                           onkeydown="if(event.key==='Enter') submitAnswer()">
+                    <button class="btn btn-primary" id="submit-btn" onclick="submitAnswer()">确定</button>
+                </div>
+            </div>
+
+            <!-- 反馈区域 -->
+            <div class="feedback-area" id="feedback-area" style="display:none;">
+                <div class="feedback-icon" id="feedback-icon"></div>
+                <div class="feedback-text" id="feedback-text"></div>
+                <div class="feedback-detail" id="feedback-detail"></div>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">下一题</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 结果页 ===== -->
+    <div id="page-result" class="page">
+        <div class="result-container">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">太棒了！</h2>
+            <div class="result-score">
+                <div class="result-number" id="result-correct">0</div>
+                <div class="result-label">正确</div>
+            </div>
+            <div class="result-detail">
+                <div class="result-item">
+                    <span>总题数</span>
+                    <span id="result-total">0</span>
+                </div>
+                <div class="result-item">
+                    <span>正确率</span>
+                    <span id="result-rate">0%</span>
+                </div>
+                <div class="result-item">
+                    <span>用时</span>
+                    <span id="result-time">0 秒</span>
+                </div>
+                <div class="result-item" id="result-wrong-item" style="display:none;">
+                    <span>错题数</span>
+                    <span id="result-wrong-count">0</span>
+                </div>
+            </div>
+            <div class="result-buttons">
+                <button class="btn btn-primary" onclick="showPage('page-settings')">再来一轮</button>
+                <button class="btn btn-secondary" onclick="showWrongBook()">查看错题本</button>
+                <button class="btn btn-text" onclick="showPage('page-home')">返回首页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 错题本页 ===== -->
+    <div id="page-wrongbook" class="page">
+        <div class="wrongbook-container">
+            <div class="wrongbook-header">
+                <h2>错题本</h2>
+                <button class="btn btn-sm btn-danger" onclick="clearWrongBook()">清空错题本</button>
+            </div>
+            <div class="wrongbook-filters" id="wrongbook-filters">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="add-sub">加减法</button>
+                <button class="filter-btn" data-filter="multiplication">乘法</button>
+                <button class="filter-btn" data-filter="division">除法</button>
+                <button class="filter-btn" data-filter="mixed">混合</button>
+                <button class="filter-btn" data-filter="decimal">小数</button>
+                <button class="filter-btn" data-filter="fraction">分数</button>
+                <button class="filter-btn" data-filter="percent">百分数</button>
+                <button class="filter-btn" data-filter="unit-convert">单位换算</button>
+            </div>
+            <div class="wrongbook-stats" id="wrongbook-stats"></div>
+            <div class="wrongbook-list" id="wrongbook-list">
+                <p class="empty-msg">暂无错题，继续加油！🎉</p>
+            </div>
+            <button class="btn btn-primary" onclick="retryWrongQuestions()">重练错题</button>
+            <button class="btn btn-text" onclick="showPage('page-home')">返回首页</button>
+        </div>
+    </div>
+
+    <!-- ===== 错题重练页 ===== -->
+    <div id="page-retry" class="page">
+        <div class="practice-container">
+            <div class="practice-header">
+                <div class="progress-info">
+                    <span id="retry-num">1</span> / <span id="retry-total">0</span>
+                </div>
+                <div class="score-display">
+                    <span style="color:var(--danger);font-weight:700;">错题重练</span>
+                </div>
+                <button class="btn btn-sm btn-text" onclick="quitRetry()">退出</button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="retry-progress-fill" style="width:0%"></div>
+            </div>
+            <div class="question-area">
+                <div class="question-number" id="retry-type-label">错题重练</div>
+                <div class="question-text" id="retry-question-text">?</div>
+            </div>
+            <div class="answer-area" id="retry-answer-area">
+                <div class="input-group">
+                    <input type="text" id="retry-answer-input" class="answer-input"
+                           inputmode="decimal" autocomplete="off"
+                           placeholder="输入你的答案…"
+                           onkeydown="if(event.key==='Enter') submitRetryAnswer()">
+                    <button class="btn btn-primary" onclick="submitRetryAnswer()">确定</button>
+                </div>
+            </div>
+            <div class="feedback-area" id="retry-feedback-area" style="display:none;">
+                <div class="feedback-icon" id="retry-feedback-icon"></div>
+                <div class="feedback-text" id="retry-feedback-text"></div>
+                <div class="feedback-detail" id="retry-feedback-detail"></div>
+                <button class="btn btn-primary" id="retry-next-btn" onclick="nextRetryQuestion()">下一题</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/knowledge.js"></script>
+    <script src="js/questions.js"></script>
+    <script src="js/wrongbook.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
