@@ -84,13 +84,16 @@ function renderTopicSelect() {
     });
     html += '</div>';
 
-    // 当前年级的知识点
+    // 当前年级的知识点（单选）
     const current = grades.find(g => g.grade === selectedGrade);
     if (current) {
-        html += '<div class="grade-topics">';
-        current.topics.forEach(t => {
-            html += '<label class="topic-item"><input type="checkbox" value="' + t.id + '" checked> ' + t.label + ' <span class="topic-desc">' + t.desc + '</span></label>';
+        html += '<div class="grade-topics radio">';
+        current.topics.forEach((t, i) => {
+            const checked = i === 0 ? ' checked' : '';
+            html += '<label class="topic-item"><input type="radio" name="topic" value="' + t.id + '"' + checked + '> ' + t.label + ' <span class="topic-desc">' + t.desc + '</span></label>';
         });
+        // 综合练习
+        html += '<label class="topic-item topic-mixed"><input type="radio" name="topic" value="__mixed__"> 综合练习 <span class="topic-desc">混合前面所有题型</span></label>';
         html += '</div>';
     }
 
@@ -100,25 +103,20 @@ function renderTopicSelect() {
     container.querySelectorAll('.grade-pill').forEach(btn => {
         btn.addEventListener('click', () => {
             selectedGrade = btn.dataset.grade;
-            // 全选当前年级所有知识点
-            const grade = Knowledge.getGrades().find(g => g.grade === selectedGrade);
-            if (grade) {
-                grade.topics.forEach(t => {
-                    const cb = container.querySelector('input[value="' + t.id + '"]');
-                    if (cb) cb.checked = true;
-                });
-            }
             renderTopicSelect();
         });
     });
+}
 
-    // 至少选中一个知识点
-    container.querySelectorAll('.topic-item input').forEach(cb => {
-        cb.addEventListener('change', () => {
-            const checked = container.querySelectorAll('.topic-item input:checked');
-            if (checked.length === 0) cb.checked = true;
-        });
-    });
+/** 获取当前选中的知识点列表（供 startPractice 使用） */
+function getSelectedTopics() {
+    const sel = document.querySelector('input[name="topic"]:checked');
+    if (!sel) return [];
+    if (sel.value === '__mixed__') {
+        const grade = Knowledge.getGrades().find(g => g.grade === selectedGrade);
+        return grade ? grade.topics.map(t => t.id) : [];
+    }
+    return [sel.value];
 }
 
 renderTopicSelect();
@@ -146,11 +144,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 // ============================================================
 
 function startPractice() {
-    // 获取选中的题型
-    const checkedTopics = [];
-    document.querySelectorAll('#topic-select input:checked').forEach(cb => {
-        checkedTopics.push(cb.value);
-    });
+    const checkedTopics = getSelectedTopics();
     if (checkedTopics.length === 0) {
         alert('请至少选择一种题型！');
         return;
