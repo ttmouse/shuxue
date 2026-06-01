@@ -87,7 +87,6 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
   margin: 0;
   padding: 0;
 }
@@ -136,6 +135,10 @@ button:disabled {
   max-width: 480px;
   margin: 0 auto;
   padding: 0 var(--s4);
+}
+
+.view.active {
+  overflow: hidden;
 }
 
 .view.active {
@@ -1319,6 +1322,53 @@ button:disabled {
   font-size: 15px;
   font-weight: 600;
   margin-bottom: var(--s2);
+}
+
+/* 旧版页面适配框架顶栏 */
+/* 旧页面通用顶栏 */
+.old-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 520px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.old-back-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--fast) var(--ease-smooth);
+}
+
+.old-back-btn:hover { background: var(--n100); color: var(--text); }
+.old-back-btn i { width: 24px; height: 24px; }
+
+.old-top-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.page-old {
+  position: relative !important;
+  padding-top: 64px !important;
 }
 
 /* =============================================================

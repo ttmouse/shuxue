@@ -385,7 +385,11 @@ function nextQuestion() {
 
 function quitPractice() {
     if (confirm('确定要退出吗？本次练习进度将不会保存。')) {
-        showPage('page-home');
+        if (typeof Framework !== 'undefined' && Framework.goHome) {
+            Framework.goHome();
+        } else {
+            showPage('page-home');
+        }
     }
 }
 

@@ -49,6 +49,8 @@ const Framework = (() => {
         currentMode = 'practice';
         return;
       }
+      // 其他模式恢复内容区展示
+      modeContent.style.display = '';
 
       const mode = registry[modeId];
       if (!mode) return;
