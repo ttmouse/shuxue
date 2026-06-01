@@ -1453,17 +1453,15 @@ button:disabled {
   flex-direction: column !important;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 !important;
+  padding-top: 0 !important;
 }
 
-.page-old > *:not(.old-top-bar) {
-  padding: 24px;
-}
-
-@media (max-width: 480px) {
-  .page-old > *:not(.old-top-bar) {
-    padding: 16px;
-  }
+.page-old > .settings-container:first-child,
+.page-old > .home-container:first-child,
+.page-old > .practice-container:first-child,
+.page-old > .result-container:first-child,
+.page-old > .wrongbook-container:first-child {
+  margin-top: 0 !important;
 }
 
 /* =============================================================
