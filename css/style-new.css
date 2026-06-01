@@ -1416,12 +1416,12 @@ button:disabled {
   border-radius: 0 0 var(--r-xl) var(--r-xl);
   box-shadow: var(--shadow-md);
   width: 100%;
-  max-width: 520px;
-  position: sticky;
+  max-width: 480px;
+  position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
-  flex-shrink: 0;
-  align-self: center;
 }
 
 .old-back-btn {
@@ -1447,13 +1447,15 @@ button:disabled {
   color: var(--text);
 }
 
-.page-old {
+.page-old.active {
   position: relative !important;
   display: flex !important;
   flex-direction: column !important;
+  justify-content: flex-start !important;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-top: 0 !important;
+  padding-top: 56px !important;
+  animation: none !important;
 }
 
 .page-old > .settings-container:first-child,
@@ -1494,6 +1496,113 @@ button:disabled {
   font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+/* =============================================================
+   传统口算 — 自定义数字键盘
+   ============================================================= */
+.prac-display {
+  width: 100%;
+  height: 48px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s3) var(--s4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--s3);
+}
+
+.prac-display-text {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Menlo', 'Courier New', monospace;
+  color: var(--text);
+  text-align: center;
+}
+
+.prac-display-text.correct {
+  color: var(--primary) !important;
+}
+
+.prac-display-text.wrong {
+  color: var(--red) !important;
+}
+
+.prac-display-text.error {
+  color: var(--orange) !important;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.prac-keypad {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  user-select: none;
+}
+
+.kp-prac {
+  background: var(--surface);
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+  flex: 1;
+  height: 50px;
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 0 var(--n200), var(--shadow-sm);
+  transition: all var(--fast) var(--ease-spring);
+}
+
+.kp-prac:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--n200);
+}
+
+.kp-clear-prac {
+  background: var(--n100);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  flex: 1;
+  height: 50px;
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 0 var(--n200), var(--shadow-sm);
+}
+
+.kp-clear-prac:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--n200);
+}
+
+.kp-submit-prac {
+  background: var(--primary);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  flex: 2;
+  height: 50px;
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 3px 0 var(--primary-dark), 0 3px 10px var(--primary-shadow);
+}
+
+.kp-submit-prac:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--primary-dark);
 }
 
 /* =============================================================

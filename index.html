@@ -133,9 +133,34 @@
       <div class="question-text" id="question-text">123 + 456 = ?</div>
     </div>
     <div class="answer-area" id="answer-area">
-      <div class="input-group">
-        <input type="text" id="answer-input" class="answer-input" inputmode="decimal" autocomplete="off" placeholder="输入你的答案…" onkeydown="if(event.key==='Enter') submitAnswer()">
-        <button class="btn btn-primary" id="submit-btn" onclick="submitAnswer()">确定</button>
+      <div class="prac-display" id="prac-display">
+        <span class="prac-display-text" id="prac-display-text"></span>
+      </div>
+      <input type="hidden" id="answer-input">
+    </div>
+    <div class="prac-keypad" id="prac-keypad">
+      <div class="kp-row">
+        <button class="kp-btn kp-prac" data-val="1">1</button>
+        <button class="kp-btn kp-prac" data-val="2">2</button>
+        <button class="kp-btn kp-prac" data-val="3">3</button>
+        <button class="kp-btn kp-prac" data-val="−">−</button>
+      </div>
+      <div class="kp-row">
+        <button class="kp-btn kp-prac" data-val="4">4</button>
+        <button class="kp-btn kp-prac" data-val="5">5</button>
+        <button class="kp-btn kp-prac" data-val="6">6</button>
+        <button class="kp-btn kp-bksp" data-val="bksp">⌫</button>
+      </div>
+      <div class="kp-row">
+        <button class="kp-btn kp-prac" data-val="7">7</button>
+        <button class="kp-btn kp-prac" data-val="8">8</button>
+        <button class="kp-btn kp-prac" data-val="9">9</button>
+        <button class="kp-btn kp-clear-prac" data-val="clear">清空</button>
+      </div>
+      <div class="kp-row">
+        <button class="kp-btn kp-prac" data-val="0">0</button>
+        <button class="kp-btn kp-prac" data-val=".">.</button>
+        <button class="kp-btn kp-submit-prac" id="prac-submit">确定</button>
       </div>
     </div>
     <div class="feedback-area" id="feedback-area" style="display:none;">

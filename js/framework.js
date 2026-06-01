@@ -34,10 +34,15 @@ const Framework = (() => {
     },
 
     /** 切换到指定模式 */
-    navigate(modeId) {
+    navigate(modeId, { noHash } = {}) {
       // 销毁当前模式
       if (currentMode && registry[currentMode]?.onDestroy) {
         registry[currentMode].onDestroy();
+      }
+
+      // 更新 URL hash（除非明确跳过）
+      if (!noHash) {
+        location.hash = modeId === 'home' ? '#/' : '#/' + modeId;
       }
 
       // 特殊处理：旧版口算模式
@@ -96,6 +101,14 @@ const Framework = (() => {
       // 显示首页
       modeView.style.display = 'none';
       homeView.style.display = 'flex';
+
+      // 更新 hash
+      location.hash = '#/';
+    },
+
+    /** 获取当前模式 */
+    _getCurrentMode() {
+      return currentMode;
     },
 
     /** 获取已注册的模式列表（用于渲染选择页） */
@@ -107,6 +120,48 @@ const Framework = (() => {
     sound: null,   // 由外部注入
     stats: null,
   };
+
+  // ============================================================
+  // Hash 路由
+  // ============================================================
+  let handlingHash = false;
+  function handleHash() {
+    if (handlingHash) return;
+    handlingHash = true;
+    const fullHash = location.hash.replace('#', '');
+    const hash = fullHash.replace(/^\//, '');
+    if (!hash || hash === '') {
+      api.goHome();
+    } else if (registry[hash]) {
+      api.navigate(hash, { noHash: true });
+    } else if (hash === 'practice' || hash.startsWith('practice/')) {
+      api.navigate('practice', { noHash: true });
+      // 旧模式子页面由 showPage 接管
+      const subMap = {
+        'practice/settings': 'page-settings',
+        'practice/play': 'page-practice',
+        'practice/result': 'page-result',
+        'practice/wrongbook': 'page-wrongbook',
+        'practice/retry': 'page-retry',
+      };
+      const sub = subMap[hash];
+      if (sub && typeof showPage === 'function') {
+        setTimeout(() => showPage(sub), 0);
+      }
+    }
+    handlingHash = false;
+  }
+
+  window.addEventListener('hashchange', handleHash);
+
+  // 页面加载时根据 URL hash 进入对应模式
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (location.hash) handleHash();
+    });
+  } else if (location.hash) {
+    handleHash();
+  }
 
   return api;
 })();

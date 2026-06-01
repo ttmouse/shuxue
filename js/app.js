@@ -53,6 +53,21 @@ function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
 
+    // 更新 URL hash（仅在传统口算模式下）
+    if (typeof Framework !== 'undefined' && Framework._getCurrentMode?.() === 'practice') {
+      const hashMap = {
+        'page-home': '#/practice',
+        'page-settings': '#/practice/settings',
+        'page-practice': '#/practice/play',
+        'page-result': '#/practice/result',
+        'page-wrongbook': '#/practice/wrongbook',
+        'page-retry': '#/practice/retry',
+      };
+      if (hashMap[pageId] && location.hash !== hashMap[pageId]) {
+        location.hash = hashMap[pageId];
+      }
+    }
+
     // 如果显示首页，更新统计
     if (pageId === 'page-home') {
         updateHomeStats();
@@ -188,26 +203,20 @@ function renderQuestion() {
     $('question-text').textContent = q.question;
 
     // 重置输入
-    const input = $('answer-input');
-    input.value = '';
-    input.className = 'answer-input';
-    input.disabled = false;
-    input.focus();
+    pracResetInput();
 
     // 隐藏反馈
     $('feedback-area').style.display = 'none';
-    $('submit-btn').disabled = false;
-    $('submit-btn').textContent = '确定';
+    $('prac-display-text').className = 'prac-display-text';
 }
 
 function submitAnswer() {
-    const input = $('answer-input');
-    const userAnswer = input.value.trim();
+    const userAnswer = (document.getElementById('answer-input')?.value || '').trim();
+    const display = document.getElementById('prac-display-text');
 
     if (userAnswer === '') {
-        input.focus();
-        input.placeholder = '请先输入答案！';
-        setTimeout(() => { input.placeholder = '输入你的答案…'; }, 1500);
+        if (display) { display.textContent = '请输入答案！'; display.className = 'prac-display-text error'; }
+        setTimeout(() => { if (display) { display.textContent = pracInput; display.className = 'prac-display-text'; } }, 1200);
         return;
     }
 
@@ -218,9 +227,9 @@ function submitAnswer() {
     // 判断答案
     const isCorrect = compareAnswers(userAnswer, correctAnswer);
 
-    // 禁用输入
-    input.disabled = true;
-    $('submit-btn').disabled = true;
+    // 禁用键盘
+    const kp = document.getElementById('prac-keypad');
+    if (kp) kp.style.pointerEvents = 'none';
 
     // 防冲撞：当前回车已经用于提交，屏蔽键盘翻题 200ms
     justSubmitted = true;
@@ -228,13 +237,13 @@ function submitAnswer() {
 
     if (isCorrect) {
         state.correctCount++;
-        input.className = 'answer-input correct';
-        Sound.playCorrect();
+        if (display) { display.className = 'prac-display-text correct'; display.textContent = '✓ ' + userAnswer; }
+        if (Framework.sound) Framework.sound.playCorrect();
         showFeedback('correct', q);
     } else {
         state.wrongCount++;
-        input.className = 'answer-input wrong';
-        Sound.playWrong();
+        if (display) { display.className = 'prac-display-text wrong'; display.textContent = '✗ ' + userAnswer; }
+        if (Framework.sound) Framework.sound.playWrong();
         showFeedback('wrong', q, userAnswer);
 
         // 记录错题
@@ -355,18 +364,19 @@ function showFeedback(result, q, userAnswer) {
 }
 
 function nextQuestion() {
-    Sound.playNext();
+    if (Framework.sound) Framework.sound.playNext();
     state.currentIndex++;
 
+    // 恢复键盘
+    const kp = document.getElementById('prac-keypad');
+    if (kp) kp.style.pointerEvents = '';
+
     if (state.currentIndex >= state.questions.length) {
-        // 练习结束，显示结果
         showResult();
         return;
     }
 
     renderQuestion();
-    // 聚焦输入框
-    $('answer-input').focus();
 }
 
 function quitPractice() {
@@ -746,6 +756,68 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         renderWrongBook();
     });
 });
+
+// ============================================================
+// 自定义数字键盘（传统口算答题）
+// ============================================================
+let pracInput = '';
+
+function pracKeypadInit() {
+  const keypad = document.getElementById('prac-keypad');
+  if (!keypad) return;
+  const display = document.getElementById('prac-display-text');
+
+  // 确定按钮
+  document.getElementById('prac-submit')?.addEventListener('click', submitAnswer);
+
+  keypad.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const val = btn.dataset.val;
+
+    if (val === 'bksp') {
+      pracInput = pracInput.slice(0, -1);
+    } else if (val === 'clear') {
+      pracInput = '';
+    } else {
+      pracInput += val;
+    }
+
+    display.textContent = pracInput;
+    document.getElementById('answer-input').value = pracInput;
+    if (Framework.sound) Framework.sound.playTap();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!document.querySelector('#page-practice.active, #page-retry.active')) return;
+    if (/^[0-9.\-]$/.test(e.key)) {
+      pracInput += e.key;
+      display.textContent = pracInput;
+      document.getElementById('answer-input').value = pracInput;
+      if (Framework.sound) Framework.sound.playTap();
+      e.preventDefault();
+    } else if (e.key === 'Backspace') {
+      pracInput = pracInput.slice(0, -1);
+      display.textContent = pracInput;
+      document.getElementById('answer-input').value = pracInput;
+      if (Framework.sound) Framework.sound.playErase();
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      submitAnswer();
+      e.preventDefault();
+    }
+  });
+}
+
+function pracResetInput() {
+  pracInput = '';
+  const d = document.getElementById('prac-display-text');
+  if (d) d.textContent = '';
+  const h = document.getElementById('answer-input');
+  if (h) h.value = '';
+}
+
+pracKeypadInit();
 
 // ============================================================
 // 初始化
