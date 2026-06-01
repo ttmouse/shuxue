@@ -105,25 +105,31 @@ function renderTopicSelect() {
     const current = grades.find(g => g.grade === selectedGrade);
     let html = '';
     if (current) {
+        html += '<div class="settings-card">';
+        html += '<div class="settings-card-header"><div class="settings-card-accent"></div><div class="settings-card-title">' + current.grade + '</div></div>';
         const allTopics = [...current.topics, { id: '__mixed__', label: '综合练习', desc: '混合当前年级所有题型' }];
 
         allTopics.forEach(t => {
             const isOpen = expandedTopic === t.id;
             const prefs = topicPrefs[t.id] || { count: 20 };
             html += '<div class="topic-card' + (isOpen ? ' expanded' : '') + '" data-topic="' + t.id + '">';
-            html += '<div class="topic-item">' + t.label + ' <span class="topic-desc">' + t.desc + '</span></div>';
+            html += '<div class="topic-item"><div class="topic-item-content"><div class="topic-label">' + t.label + '</div><div class="topic-desc">' + t.desc + '</div></div><div class="topic-arrow">›</div></div>';
             if (isOpen) {
                 html += '<div class="topic-config">';
+                html += '<div class="expand-label">题目数量</div>';
                 html += '<div class="tc-row">';
                 [10, 20, 30, 60].forEach(n => {
                     html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
                 });
                 html += '</div>';
-                html += '<button class="tc-start">开始答题</button>';
+                html += '<div class="action-row">';
+                html += '<button class="tc-start">开始练习</button>';
+                html += '</div>';
                 html += '</div>';
             }
             html += '</div>';
         });
+        html += '</div>'; // close settings-card
     }
 
     container.innerHTML = html;
@@ -267,7 +273,7 @@ function submitAnswer() {
         return;
     }
 
-    // 答错：标红 + 确定键变下一题
+    // 答错：标红 + 自动跳转
     state.wrongCount++;
     const qt = $('question-text');
     if (qt) { qt.innerHTML = q.question.replace('?', `<span style="color:var(--red);font-weight:800;">${userAnswer}</span>`); }
@@ -279,14 +285,7 @@ function submitAnswer() {
         type: q.type,
         typeLabel: q.typeLabel,
     });
-    // 确定键 → 下一题
-    const sb = document.getElementById('prac-submit');
-    if (sb) {
-      sb.textContent = '下一题';
-      sb.onclick = null;
-      const isLast = state.currentIndex >= state.questions.length - 1;
-      sb.onclick = isLast ? showResult : nextQuestion;
-    }
+    setTimeout(() => nextQuestion(), 600);
 
     $('correct-count').textContent = state.correctCount;
     $('wrong-count').textContent = state.wrongCount;

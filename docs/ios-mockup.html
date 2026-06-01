@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口算练习 — iOS 原型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#c2c2c8;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;
+}
+.phone{
+  width:393px;
+  height:852px;
+  background:#f2f2f7;
+  border-radius:44px;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(0,0,0,.08),0 20px 60px rgba(0,0,0,.3);
+  position:relative;
+}
+/* Dynamic Island */
+.dynamic-island{
+  position:absolute;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:126px;
+  height:36px;
+  background:#000;
+  border-radius:20px;
+  z-index:20;
+}
+/* Status Bar */
+.status-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 32px 8px;
+  font-size:14px;
+  font-weight:600;
+  color:#000;
+  background:#f2f2f7;
+  position:relative;
+  z-index:10;
+}
+.status-left{font-weight:700;letter-spacing:.5px;font-size:15px}
+.status-right{display:flex;align-items:center;gap:6px}
+.signal{display:flex;gap:1.5px;align-items:center}
+.signal span{width:3px;background:#000;border-radius:1px}
+.signal span:nth-child(1){height:8px}
+.signal span:nth-child(2){height:10px}
+.signal span:nth-child(3){height:13px}
+.signal span:nth-child(4){height:16px}
+.wifi{font-size:14px;line-height:1}
+.battery{width:24px;height:11px;border:1.5px solid #000;border-radius:3px;position:relative;display:flex;align-items:center;padding:1.5px}
+.battery-inner{width:80%;height:100%;background:#000;border-radius:1px}
+.battery:after{content:'';position:absolute;right:-4px;width:2px;height:5px;background:#000;border-radius:0 1px 1px 0}
+/* Nav */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 16px 12px;
+  background:#f2f2f7;
+}
+.nav-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#007aff;font-weight:300;cursor:default}
+.nav-title{font-size:17px;font-weight:600;color:#000}
+.nav-right{width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.nav-clock svg{width:22px;height:22px;stroke:#007aff;fill:none;stroke-width:1.5}
+/* Filter Row */
+.filter-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px 16px;
+  background:#f2f2f7;
+}
+.filter-text{font-size:13px;color:#8e8e93}
+.filter-arrow{font-size:10px;color:#8e8e93;margin-left:4px}
+.filter-right{display:flex;align-items:center}
+/* Content */
+.content{
+  padding:0 16px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow-y:auto;
+  height:calc(100% - 140px);
+}
+/* Card */
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:4px 0;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.card-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 16px 8px;
+}
+.card-accent{
+  width:4px;
+  height:18px;
+  border-radius:2px;
+  background:#58cc02;
+  flex-shrink:0;
+}
+.card-title{
+  font-size:15px;
+  font-weight:600;
+  color:#000;
+}
+/* Topic Items */
+.topic-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid #f0f0f0;
+  cursor:default;
+}
+.topic-item:last-child{border-bottom:none}
+.topic-left{flex:1;min-width:0}
+.topic-name{font-size:15px;font-weight:600;color:#000;margin-bottom:2px}
+.topic-example{font-size:12px;color:#aeaeb2;line-height:1.3}
+.topic-toggle{
+  width:28px;height:28px;border-radius:14px;
+  background:#f2f2f7;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#3c3c3c;
+  flex-shrink:0;
+  margin-left:12px;
+}
+.topic-toggle.open{background:#e8f5e9;color:#58cc02}
+/* Expanded */
+.expanded{padding:0 16px 16px}
+.expand-label{font-size:13px;font-weight:600;color:#000;margin-bottom:8px}
+.capsule-row{display:flex;gap:8px;margin-bottom:16px}
+.capsule{
+  padding:8px 16px;border-radius:20px;font-size:14px;font-weight:500;
+  border:1px solid #e5e5ea;background:#fff;color:#8e8e93;
+  cursor:default;
+}
+.capsule.active{border-color:#58cc02;background:#e8f5e9;color:#000}
+.action-row{display:flex;gap:10px}
+.btn-secondary{
+  flex:1;padding:14px 0;border-radius:14px;border:none;
+  background:#f2f2f7;color:#3c3c3c;font-size:15px;font-weight:600;
+  text-align:center;cursor:default;
+}
+.btn-primary{
+  flex:2;padding:14px 0;border-radius:14px;border:none;
+  background:#58cc02;color:#fff;font-size:15px;font-weight:700;
+  text-align:center;cursor:default;
+  box-shadow:0 2px 0 #46a302;
+}
+/* Bottom bar */
+.home-bar{
+  position:absolute;
+  bottom:8px;
+  left:50%;
+  transform:translateX(-50%);
+  width:134px;
+  height:5px;
+  background:#000;
+  border-radius:2.5px;
+  opacity:.2;
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="dynamic-island"></div>
+  <div class="status-bar">
+    <div class="status-left">9:41</div>
+    <div class="status-right">
+      <div class="signal"><span></span><span></span><span></span><span></span></div>
+      <div class="wifi">⌔</div>
+      <div class="battery"><div class="battery-inner"></div></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-back">‹</div>
+    <div class="nav-title">口算练习</div>
+    <div class="nav-clock">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <div class="filter-text">四年级（下）· 人教版</div>
+    <div class="filter-right"><span class="filter-arrow">▼</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- Card 1 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-accent"></div>
+        <div class="card-title">四则运算</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">不含括号的四则运算</div>
+          <div class="topic-example">例题：480 ÷ 15 × (73 − 29) = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">含小括号的四则运算</div>
+          <div class="topic-example">例题：(45 + 38) × (96 − 57) = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">含中括号的四则运算</div>
+          <div class="topic-example">例题：8 × [498 + (286 + 109)] = ( )</div>
+        </div>
+        <div class="topic-toggle open">›</div>
+      </div>
+      <!-- Expanded -->
+      <div class="expanded">
+        <div class="expand-label">题目数量</div>
+        <div class="capsule-row">
+          <div class="capsule">10</div>
+          <div class="capsule active">20</div>
+          <div class="capsule">30</div>
+          <div class="capsule">60</div>
+          <div class="capsule">100</div>
+        </div>
+        <div class="action-row">
+          <div class="btn-secondary">打印</div>
+          <div class="btn-primary">开始练习</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-accent"></div>
+        <div class="card-title">运算定律</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">加法交换律与结合律</div>
+          <div class="topic-example">例题：28 + 156 + 72 + 44 = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">乘法分配律</div>
+          <div class="topic-example">例题：125 × 88 = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+      <div class="topic-item">
+        <div class="topic-left">
+          <div class="topic-name">连减与连除的简便运算</div>
+          <div class="topic-example">例题：560 − 98 = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+      <div class="topic-item" style="border-bottom:none;">
+        <div class="topic-left">
+          <div class="topic-name">单元练习</div>
+          <div class="topic-example">20 题 · 混合题型</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-accent"></div>
+        <div class="card-title">小数加减法</div>
+      </div>
+      <div class="topic-item" style="border-bottom:none;">
+        <div class="topic-left">
+          <div class="topic-name">小数进位加减法</div>
+          <div class="topic-example">例题：27.35 + 18.67 = ( )</div>
+        </div>
+        <div class="topic-toggle">›</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="home-bar"></div>
+</div>
+</body>
+</html>
