@@ -555,37 +555,24 @@ button:disabled {
 }
 
 /* =============================================================
-   传统口算 — 年级选择标签
+   传统口算 — 年级下拉
    ============================================================= */
-.grade-pills {
-  display: flex;
-  gap: var(--s1);
-  margin-bottom: var(--s4);
-}
-
-.grade-pill {
-  flex: 1;
-  padding: var(--s3) var(--s2);
-  border: none;
+.grade-select {
+  padding: var(--s1) var(--s2);
+  border: 2px solid var(--border);
   border-radius: var(--r-md);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  cursor: pointer;
   font-family: inherit;
-  background: var(--n100);
-  color: var(--text-secondary);
-  transition: all var(--fast) var(--ease-smooth);
-}
-
-.grade-pill:hover {
-  background: var(--n150);
+  background: var(--surface);
   color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--fast) var(--ease-smooth);
 }
 
-.grade-pill.active {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 2px 8px var(--primary-shadow);
+.grade-select:focus {
+  border-color: var(--primary);
 }
 
 /* 传统口算 — 知识点项 */
@@ -1430,11 +1417,11 @@ button:disabled {
   box-shadow: var(--shadow-md);
   width: 100%;
   max-width: 520px;
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
   z-index: 10;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .old-back-btn {
@@ -1462,9 +1449,21 @@ button:disabled {
 
 .page-old {
   position: relative !important;
-  padding-top: 64px !important;
+  display: flex !important;
+  flex-direction: column !important;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding: 0 !important;
+}
+
+.page-old > *:not(.old-top-bar) {
+  padding: 24px;
+}
+
+@media (max-width: 480px) {
+  .page-old > *:not(.old-top-bar) {
+    padding: 16px;
+  }
 }
 
 /* =============================================================

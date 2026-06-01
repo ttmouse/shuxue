@@ -72,22 +72,21 @@ function $(id) { return document.getElementById(id); }
 // 渲染知识点选择界面
 let selectedGrade = '3~4年级';
 
+function switchGrade(grade) {
+    selectedGrade = grade;
+    renderTopicSelect();
+}
+
 function renderTopicSelect() {
     const container = document.getElementById('topic-select');
     if (!container) return;
     const grades = Knowledge.getGrades();
 
-    // 年级选择标签
-    let html = '<div class="grade-pills">';
-    grades.forEach(g => {
-        html += '<button class="grade-pill' + (g.grade === selectedGrade ? ' active' : '') + '" data-grade="' + g.grade + '">' + g.grade + '</button>';
-    });
-    html += '</div>';
-
     // 当前年级的知识点（单选）
     const current = grades.find(g => g.grade === selectedGrade);
+    let html = '';
     if (current) {
-        html += '<div class="grade-topics radio">';
+        html = '<div class="grade-topics radio">';
         current.topics.forEach((t, i) => {
             const checked = i === 0 ? ' checked' : '';
             html += '<label class="topic-item"><input type="radio" name="topic" value="' + t.id + '"' + checked + '> ' + t.label + ' <span class="topic-desc">' + t.desc + '</span></label>';
@@ -99,13 +98,9 @@ function renderTopicSelect() {
 
     container.innerHTML = html;
 
-    // 年级切换事件
-    container.querySelectorAll('.grade-pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-            selectedGrade = btn.dataset.grade;
-            renderTopicSelect();
-        });
-    });
+    // 同步年级下拉
+    const sel = document.getElementById('grade-select');
+    if (sel) sel.value = selectedGrade;
 }
 
 /** 获取当前选中的知识点列表（供 startPractice 使用） */

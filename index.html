@@ -77,15 +77,15 @@
 <div id="page-settings" class="page page-old">
   <div class="old-top-bar">
     <button class="old-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
-    <span class="old-top-title">传统口算</span>
-    <div style="width:44px;"></div>
+    <span class="old-top-title">练习设置</span>
+    <select class="grade-select" id="grade-select" onchange="switchGrade(this.value)">
+      <option value="1~2年级">1~2年级</option>
+      <option value="3~4年级" selected>3~4年级</option>
+      <option value="5~6年级">5~6年级</option>
+    </select>
   </div>
-  <div class="settings-container">
-    <h2>练习设置</h2>
-    <div class="setting-group">
-      <label>选择年级</label>
-      <div id="topic-select"></div>
-    </div>
+  <div class="settings-container" style="padding-top:16px;">
+    <div id="topic-select"></div>
     <div class="setting-group">
       <label>题目数量</label>
       <div class="count-selector" id="count-select">
