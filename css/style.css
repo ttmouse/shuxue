@@ -62,7 +62,7 @@ body {
     align-items: flex-start;
     min-height: 100vh;
     padding: 24px;
-    animation: pageEnter 0.35s var(--ease-spring) both;
+    animation: pageEnter 0.2s var(--ease-spring) both;
 }
 @keyframes pageEnter {
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
@@ -402,7 +402,7 @@ body {
 .answer-input.wrong {
     border-color: var(--danger);
     background: var(--danger-bg);
-    animation: shake 0.4s var(--ease-spring);
+    animation: shake 0.25s var(--ease-spring);
 }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -417,7 +417,7 @@ body {
     padding: 20px;
     border-radius: var(--radius-md);
     background: var(--border-light);
-    animation: feedbackIn 0.3s var(--ease-spring) both;
+    animation: feedbackIn 0.15s var(--ease-spring) both;
 }
 @keyframes feedbackIn {
     from { opacity: 0; transform: translateY(8px) scale(0.97); }

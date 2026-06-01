@@ -54,6 +54,29 @@ const Sound = (() => {
         playTone(880, 0.05, 'sine', 0.15);  // A5
     }
 
+    /** 按键触感：短促 click */
+    function playTap() {
+        playTone(1200, 0.03, 'sine', 0.08);
+    }
+
+    /** 退格擦除 */
+    function playErase() {
+        playTone(600, 0.04, 'sine', 0.06);
+    }
+
+    /** 清空操作 */
+    function playClear() {
+        playTone(400, 0.06, 'sine', 0.1);
+        setTimeout(() => playTone(350, 0.08, 'sine', 0.08), 60);
+    }
+
+    /** 游戏开始：欢快上行 */
+    function playStart() {
+        playTone(523, 0.12, 'sine', 0.18);
+        setTimeout(() => playTone(659, 0.12, 'sine', 0.18), 100);
+        setTimeout(() => playTone(784, 0.2, 'sine', 0.2), 200);
+    }
+
     /** 完成庆祝：上升琶音 */
     function playComplete() {
         playTone(523, 0.15, 'sine', 0.2);
@@ -63,9 +86,13 @@ const Sound = (() => {
     }
 
     return {
+        playStart,
         playCorrect,
         playWrong,
         playNext,
         playComplete,
+        playTap,
+        playErase,
+        playClear,
     };
 })();
