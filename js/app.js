@@ -70,61 +70,58 @@ function $(id) { return document.getElementById(id); }
 // ============================================================
 
 // 渲染知识点选择界面
+let selectedGrade = '3~4年级';
+
 function renderTopicSelect() {
     const container = document.getElementById('topic-select');
     if (!container) return;
-    let html = '';
     const grades = Knowledge.getGrades();
+
+    // 年级选择标签
+    let html = '<div class="grade-pills">';
     grades.forEach(g => {
-        html += '<div class="grade-group">';
-        html += '<div class="grade-header" onclick="toggleGrade(this)">';
-        html += '<span>' + g.grade + ' <span class="grade-toggle">' + (g.open ? '▼' : '▶') + '</span></span>';
-        html += '<span class="grade-actions">';
-        html += '<span class="grade-select-btn" data-grade="' + g.grade + '" data-action="select">全选</span>';
-        html += ' <span class="grade-select-btn" data-grade="' + g.grade + '" data-action="clear">取消</span>';
-        html += '</span></div>';
-        html += '<div class="grade-topics" style="display:' + (g.open ? 'grid' : 'none') + ';">';
-        g.topics.forEach(t => {
+        html += '<button class="grade-pill' + (g.grade === selectedGrade ? ' active' : '') + '" data-grade="' + g.grade + '">' + g.grade + '</button>';
+    });
+    html += '</div>';
+
+    // 当前年级的知识点
+    const current = grades.find(g => g.grade === selectedGrade);
+    if (current) {
+        html += '<div class="grade-topics">';
+        current.topics.forEach(t => {
             html += '<label class="topic-item"><input type="checkbox" value="' + t.id + '" checked> ' + t.label + ' <span class="topic-desc">' + t.desc + '</span></label>';
         });
-        html += '</div></div>';
-    });
-    container.innerHTML = html;
-}
-function toggleGrade(el) {
-    const grid = el.nextElementSibling;
-    const toggle = el.querySelector('.grade-toggle');
-    if (grid.style.display === 'grid') {
-        grid.style.display = 'none';
-        toggle.textContent = '▶';
-    } else {
-        grid.style.display = 'grid';
-        toggle.textContent = '▼';
+        html += '</div>';
     }
-}
-function toggleGradeAll(gradeLabel, check) {
-    const ids = Knowledge.getGradeTopicIds(gradeLabel);
-    ids.forEach(id => {
-        const cb = document.querySelector('#topic-select input[value="' + id + '"]');
-        if (cb) { cb.checked = check; cb.dispatchEvent(new Event('change')); }
+
+    container.innerHTML = html;
+
+    // 年级切换事件
+    container.querySelectorAll('.grade-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedGrade = btn.dataset.grade;
+            // 全选当前年级所有知识点
+            const grade = Knowledge.getGrades().find(g => g.grade === selectedGrade);
+            if (grade) {
+                grade.topics.forEach(t => {
+                    const cb = container.querySelector('input[value="' + t.id + '"]');
+                    if (cb) cb.checked = true;
+                });
+            }
+            renderTopicSelect();
+        });
+    });
+
+    // 至少选中一个知识点
+    container.querySelectorAll('.topic-item input').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const checked = container.querySelectorAll('.topic-item input:checked');
+            if (checked.length === 0) cb.checked = true;
+        });
     });
 }
-document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.grade-select-btn');
-    if (!btn) return;
-    const grade = btn.dataset.grade;
-    const check = btn.dataset.action === 'select';
-    toggleGradeAll(grade, check);
-});
+
 renderTopicSelect();
-document.querySelectorAll('#topic-select input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', () => {
-        const checked = document.querySelectorAll('#topic-select input:checked');
-        if (checked.length === 0) {
-            cb.checked = true;
-        }
-    });
-});
 
 // 题目数量选择
 document.querySelectorAll('.count-btn').forEach(btn => {

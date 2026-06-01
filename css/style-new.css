@@ -555,6 +555,92 @@ button:disabled {
 }
 
 /* =============================================================
+   传统口算 — 年级选择标签
+   ============================================================= */
+.grade-pills {
+  display: flex;
+  gap: var(--s1);
+  margin-bottom: var(--s4);
+}
+
+.grade-pill {
+  flex: 1;
+  padding: var(--s3) var(--s2);
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--n100);
+  color: var(--text-secondary);
+  transition: all var(--fast) var(--ease-smooth);
+}
+
+.grade-pill:hover {
+  background: var(--n150);
+  color: var(--text);
+}
+
+.grade-pill.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--primary-shadow);
+}
+
+/* 传统口算 — 知识点项 */
+#topic-select .grade-topics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+  margin-bottom: var(--s4);
+}
+
+#topic-select .topic-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s3);
+  background: var(--n50);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  border: 1.5px solid transparent;
+  transition: all var(--fast) var(--ease-smooth);
+}
+
+#topic-select .topic-item:hover {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+#topic-select .topic-item:has(input:checked) {
+  border-color: var(--primary-light);
+  background: #e8f5e9;
+}
+
+#topic-select .topic-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+#topic-select .topic-item .topic-desc {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  display: block;
+  margin-top: 1px;
+}
+
+@media (max-width: 400px) {
+  #topic-select .grade-topics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================
    通用组件 — 标签
    ============================================================= */
 .tag {
