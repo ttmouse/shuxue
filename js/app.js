@@ -92,84 +92,99 @@ function switchGrade(grade) {
     renderTopicSelect();
 }
 
+/** 知识点对应的题目数量/难度配置（每个知识点独立） */
+const topicPrefs = {};
+
+let expandedTopic = null;
+
 function renderTopicSelect() {
     const container = document.getElementById('topic-select');
     if (!container) return;
     const grades = Knowledge.getGrades();
 
-    // 当前年级的知识点（单选）
     const current = grades.find(g => g.grade === selectedGrade);
     let html = '';
     if (current) {
-        html = '<div class="grade-topics radio">';
-        current.topics.forEach((t, i) => {
-            const checked = i === 0 ? ' checked' : '';
-            html += '<label class="topic-item"><input type="radio" name="topic" value="' + t.id + '"' + checked + '> ' + t.label + ' <span class="topic-desc">' + t.desc + '</span></label>';
+        const allTopics = [...current.topics, { id: '__mixed__', label: '综合练习', desc: '混合当前年级所有题型' }];
+
+        allTopics.forEach(t => {
+            const isOpen = expandedTopic === t.id;
+            const prefs = topicPrefs[t.id] || { count: 20 };
+            html += '<div class="topic-card' + (isOpen ? ' expanded' : '') + '" data-topic="' + t.id + '">';
+            html += '<div class="topic-item">' + t.label + ' <span class="topic-desc">' + t.desc + '</span></div>';
+            if (isOpen) {
+                html += '<div class="topic-config">';
+                html += '<div class="tc-row">';
+                [10, 20, 30, 60].forEach(n => {
+                    html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
+                });
+                html += '</div>';
+                html += '<button class="tc-start">开始答题</button>';
+                html += '</div>';
+            }
+            html += '</div>';
         });
-        // 综合练习
-        html += '<label class="topic-item topic-mixed"><input type="radio" name="topic" value="__mixed__"> 综合练习 <span class="topic-desc">混合前面所有题型</span></label>';
-        html += '</div>';
     }
 
     container.innerHTML = html;
 
-    // 同步年级下拉
+    // 点击卡片展开/折叠
+    container.querySelectorAll('.topic-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.tc-count') || e.target.closest('.tc-start')) return;
+            const id = card.dataset.topic;
+            expandedTopic = expandedTopic === id ? null : id;
+            renderTopicSelect();
+        });
+    });
+
+    // 题数选择
+    container.querySelectorAll('.tc-count').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!topicPrefs[expandedTopic]) topicPrefs[expandedTopic] = { count: 20 };
+            topicPrefs[expandedTopic].count = parseInt(btn.dataset.count);
+            renderTopicSelect();
+        });
+    });
+
+    // 开始答题
+    container.querySelectorAll('.tc-start').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const prefs = topicPrefs[expandedTopic] || { count: 20 };
+            state.count = prefs.count;
+            state.topics = expandedTopic === '__mixed__'
+                ? Knowledge.getGradeTopicIds(selectedGrade)
+                : [expandedTopic];
+            startPractice();
+        });
+    });
+
     const sel = document.getElementById('grade-select');
     if (sel) sel.value = selectedGrade;
 }
 
-/** 获取当前选中的知识点列表（供 startPractice 使用） */
-function getSelectedTopics() {
-    const sel = document.querySelector('input[name="topic"]:checked');
-    if (!sel) return [];
-    if (sel.value === '__mixed__') {
-        const grade = Knowledge.getGrades().find(g => g.grade === selectedGrade);
-        return grade ? grade.topics.map(t => t.id) : [];
-    }
-    return [sel.value];
-}
-
 renderTopicSelect();
-
-// 题目数量选择
-document.querySelectorAll('.count-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.count = parseInt(btn.dataset.count);
-    });
-});
-
-// 难度选择
-document.querySelectorAll('.diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.difficulty = btn.dataset.diff;
-    });
-});
 
 // ============================================================
 // 开始练习
 // ============================================================
 
+const TOPIC_ALIAS = {
+    'add-easy': 'add-sub', 'multi-hard': 'multiplication',
+    'double-paren': 'mixed', 'decimal-addsub': 'decimal', 'fraction-addsub': 'fraction',
+};
+
 function startPractice() {
-    const checkedTopics = getSelectedTopics();
-    if (checkedTopics.length === 0) {
-        alert('请至少选择一种题型！');
-        return;
+    if (state.topics && state.topics.length > 0 && state.count) {
+        // 已从 topic-card 设好，映射到生成器 ID
+        state.topics = [...new Set(state.topics.map(t => TOPIC_ALIAS[t] || t))];
+    } else {
+        state.topics = ['add-sub'];
+        state.count = 20;
     }
-    // 知识点 ID → 生成器 ID 映射（部分知识点共用同一生成器）
-    const TOPIC_ALIAS = {
-        'add-easy': 'add-sub',
-        'multi-hard': 'multiplication',
-        'double-paren': 'mixed',
-        'decimal-addsub': 'decimal',
-        'fraction-addsub': 'fraction',
-    };
-    state.topics = [...new Set(checkedTopics.map(t => TOPIC_ALIAS[t] || t))];
-    state.difficulty = document.querySelector('.diff-btn.active')?.dataset?.diff || 'medium';
-    state.count = parseInt(document.querySelector('.count-btn.active')?.dataset?.count || '20');
+    state.difficulty = state.difficulty || 'medium';
 
     // 生成题目
     const { questions } = QuestionGenerator.generateSet(state.topics, state.count, state.difficulty);
@@ -201,6 +216,10 @@ function renderQuestion() {
 
     $('question-type-label').textContent = `第 ${idx + 1} 题 · ${q.typeLabel}`;
     $('question-text').textContent = q.question;
+
+    // 恢复确定键
+    const sb = document.getElementById('prac-submit');
+    if (sb) { sb.textContent = '确定'; sb.onclick = submitAnswer; }
 
     // 重置输入
     pracResetInput();
@@ -238,19 +257,20 @@ function submitAnswer() {
 
     if (isCorrect) {
         state.correctCount++;
-        if (display) { display.className = 'prac-display-text correct'; display.textContent = '✓ ' + userAnswer; }
+        const qt = $('question-text');
+        if (qt) { qt.innerHTML = q.question.replace('?', `<span style="color:var(--primary);font-weight:800;">${userAnswer}</span> <span style="color:var(--primary);font-size:18px;"> ✓</span>`); }
         if (Framework.sound) Framework.sound.playCorrect();
-        // 答对自动跳转下一题
-        if (kp) kp.style.display = 'none';
-        setTimeout(() => nextQuestion(), 400);
+        // 键盘不动，等自动跳转
+        setTimeout(() => nextQuestion(), 500);
         $('correct-count').textContent = state.correctCount;
         $('wrong-count').textContent = state.wrongCount;
         return;
     }
 
-    // 答错：显示正确答案 + 下一题按钮
+    // 答错：标红 + 确定键变下一题
     state.wrongCount++;
-    if (display) { display.className = 'prac-display-text wrong'; display.textContent = '✗ ' + userAnswer + '  ✓ ' + q.answer; }
+    const qt = $('question-text');
+    if (qt) { qt.innerHTML = q.question.replace('?', `<span style="color:var(--red);font-weight:800;">${userAnswer}</span>`); }
     if (Framework.sound) Framework.sound.playWrong();
     WrongBook.add({
         question: q.question,
@@ -259,9 +279,14 @@ function submitAnswer() {
         type: q.type,
         typeLabel: q.typeLabel,
     });
-    if (kp) kp.style.display = 'none';
-    const nextBar = document.getElementById('prac-next-bar') || createNextBar();
-    nextBar.style.display = 'flex';
+    // 确定键 → 下一题
+    const sb = document.getElementById('prac-submit');
+    if (sb) {
+      sb.textContent = '下一题';
+      sb.onclick = null;
+      const isLast = state.currentIndex >= state.questions.length - 1;
+      sb.onclick = isLast ? showResult : nextQuestion;
+    }
 
     $('correct-count').textContent = state.correctCount;
     $('wrong-count').textContent = state.wrongCount;
