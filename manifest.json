@@ -1,0 +1,24 @@
+{
+  "name": "数学思维训练",
+  "short_name": "数学思维",
+  "description": "小学口算·运算定律·24点挑战·抽卡凑数",
+  "start_url": "/math-game/",
+  "display": "standalone",
+  "background_color": "#f2f0eb",
+  "theme_color": "#58CC02",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

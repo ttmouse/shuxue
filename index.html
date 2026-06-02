@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358CC02' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2'/><path d='M18 14v4'/><path d='M10 14v4'/><path d='M14 14v4'/><path d='M14 4v6'/><path d='M10 4v6'/><path d='M12 12v.01'/></svg>">
 <title>数学思维训练</title>
+<link rel="manifest" href="/math-game/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="数学思维">
+<link rel="apple-touch-icon" href="/math-game/icons/icon-192.svg">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -457,6 +462,11 @@ function renderModeGrid() {
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
   }
+}
+
+// 注册 Service Worker（PWA）
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/math-game/service-worker.js');
 }
 
 renderModeGrid();

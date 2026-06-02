@@ -20,7 +20,11 @@ tar -czf math-game.tar.gz \
   js/framework.js \
   js/app.js \
   js/modes/game24.js \
-  js/modes/clever.js
+  js/modes/clever.js \
+  js/modes/card-draw.js \
+  manifest.json \
+  service-worker.js \
+  icons/icon-192.svg
 
 echo "🚚 上传到服务器..."
 sshpass -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no math-game.tar.gz $SERVER_USER@$SERVER_IP:/root/
