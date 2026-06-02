@@ -924,9 +924,12 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 let pracInput = '';
 
 function pracKeypadInit() {
-  const keypad = $('prac-keypad');
+  const keypad = $('c-keys');
   const retryKeypad = $('retry-keys');
-  const display = $('c-input-text');
+
+  function getDisplay() {
+    return document.querySelector('#page-retry.active') ? $('retry-input-text') : $('c-input-text');
+  }
 
   function onKeypadClick(e) {
     const btn = e.target.closest('button');
@@ -948,7 +951,8 @@ function pracKeypadInit() {
       pracInput += val;
     }
 
-    display.textContent = pracInput;
+    var d = getDisplay();
+    if (d) d.textContent = pracInput;
     var inputWrap = document.querySelector('#page-retry.active') ? $('retry-input-wrap') : $('c-input-wrap');
     if (inputWrap) inputWrap.classList.toggle('has-val', pracInput !== '');
     if (Framework.sound) Framework.sound.playTap();
@@ -965,14 +969,18 @@ function pracKeypadInit() {
     }
     if (/^[0-9.\-<>=]$/.test(e.key)) {
       pracInput += e.key;
-      display.textContent = pracInput;
-      $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
+      var d = getDisplay();
+      if (d) d.textContent = pracInput;
+      var iw = document.querySelector('#page-retry.active') ? $('retry-input-wrap') : $('c-input-wrap');
+      if (iw) iw.classList.toggle('has-val', pracInput !== '');
       if (Framework.sound) Framework.sound.playTap();
       e.preventDefault();
     } else if (e.key === 'Backspace') {
       pracInput = pracInput.slice(0, -1);
-      display.textContent = pracInput;
-      $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
+      var d = getDisplay();
+      if (d) d.textContent = pracInput;
+      var iw = document.querySelector('#page-retry.active') ? $('retry-input-wrap') : $('c-input-wrap');
+      if (iw) iw.classList.toggle('has-val', pracInput !== '');
       if (Framework.sound) Framework.sound.playErase();
       e.preventDefault();
     } else if (e.key === 'Enter') {
