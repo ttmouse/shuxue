@@ -1010,6 +1010,37 @@ function quitRetry() {
 }
 
 // ============================================================
+// 知识点分析
+// ============================================================
+function showAnalytics() {
+    const overlay = $('analytics-overlay');
+    const content = $('analytics-content');
+    const closeBtn = $('analytics-close');
+    if (!overlay || !content) return;
+
+    let html = '';
+    if (typeof Stats !== 'undefined' && typeof Stats.getTopicStats === 'function') {
+        const merged = Stats.getTopicStats();
+        const entries = Object.entries(merged).filter(([_, s]) => s.total > 0);
+        if (entries.length > 0) {
+            html = '<div class="ht-header" style="padding:var(--s2) 0;">累计知识点掌握度</div>';
+            entries.forEach(([type, s]) => {
+                const pct = Math.round(s.correct / s.total * 100);
+                const color = pct >= 80 ? 'var(--primary)' : pct >= 60 ? 'var(--orange)' : 'var(--red)';
+                html += `<div class="ht-row"><span class="ht-label">${s.label}</span><div class="ht-bar"><div class="ht-fill" style="width:${pct}%;background:${color}"></div></div><span class="ht-num">${pct}%</span></div>`;
+            });
+        } else {
+            html = '<div style="text-align:center;padding:var(--s12) 0;font-size:14px;color:var(--n300);">暂无数据<br><span style="font-size:12px;">完成练习后自动记录</span></div>';
+        }
+    }
+
+    content.innerHTML = html;
+    overlay.style.display = 'flex';
+    closeBtn.onclick = () => { overlay.style.display = 'none'; };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.style.display = 'none'; };
+}
+
+// ============================================================
 // 首页统计
 // ============================================================
 
@@ -1037,23 +1068,7 @@ function updateHomeStats() {
         if (streakEl) streakEl.textContent = total.days;
     }
 
-    // 累计知识点分析
-    const topicSection = $('home-topic-section');
-    if (topicSection && typeof Stats.getTopicStats === 'function') {
-        const merged = Stats.getTopicStats();
-        const entries = Object.entries(merged).filter(([_, s]) => s.total > 0);
-        if (entries.length > 0) {
-            let tHtml = '<div class="ht-header">累计知识点掌握度</div>';
-            entries.forEach(([type, s]) => {
-                const pct = Math.round(s.correct / s.total * 100);
-                const color = pct >= 80 ? 'var(--primary)' : pct >= 60 ? 'var(--orange)' : 'var(--red)';
-                tHtml += `<div class="ht-row"><span class="ht-label">${s.label}</span><div class="ht-bar"><div class="ht-fill" style="width:${pct}%;background:${color}"></div></div><span class="ht-num">${pct}%</span></div>`;
-            });
-            topicSection.innerHTML = tHtml;
-        } else {
-            topicSection.innerHTML = '<div class="ht-empty">完成一次练习后，这里会显示各知识点的掌握度</div>';
-        }
-    }
+
 
     // 今日统计（旧首页）
     const dayStatsEl = $('home-day-stats');

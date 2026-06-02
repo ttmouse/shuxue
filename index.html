@@ -40,7 +40,20 @@
     </div>
   </div>
 
-  <div class="home-topic-section" id="home-topic-section"></div>
+  <div class="home-analytics-btn" id="home-analytics-btn" onclick="showAnalytics()">
+    <i data-lucide="bar-chart-3" style="width:16px;height:16px;stroke-width:1.8;"></i>
+    <span>查看知识点掌握度</span>
+  </div>
+
+  <div class="g24-overlay" id="analytics-overlay" style="display:none;">
+    <div class="g24-overlay-sheet">
+      <div class="g24-overlay-header">
+        <span class="g24-overlay-title">知识点掌握度</span>
+        <button class="g24-overlay-close" id="analytics-close">✕</button>
+      </div>
+      <div class="g24-overlay-list" id="analytics-content"></div>
+    </div>
+  </div>
 
   <div class="home-footer">
     <span class="footer-text">每天 5 分钟，让思维更灵活</span>

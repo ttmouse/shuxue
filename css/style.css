@@ -279,7 +279,19 @@ body {
   letter-spacing: 0.03em;
 }
 
-/* Topic analysis section */
+/* Analytics entry */
+.home-analytics-btn {
+  display: flex; align-items: center; gap: var(--s2); justify-content: center;
+  padding: var(--s2) var(--s4); cursor: pointer; width: 100%;
+  border-radius: var(--r-md); transition: all var(--fast) var(--ease-smooth);
+  margin-top: var(--s1);
+}
+.home-analytics-btn span { font-size: 12px; font-weight: 600; color: var(--n350); }
+.home-analytics-btn svg { color: var(--n300); }
+.home-analytics-btn:hover { background: rgba(255,255,255,0.4); }
+.home-analytics-btn:hover span { color: var(--n400); }
+
+/* Topic analysis section (inside overlay) */
 .home-topic-section { width: 100%; margin-top: var(--s1); }
 .ht-header {
   font-size: 11px; font-weight: 700; color: var(--n300);
