@@ -117,7 +117,7 @@ const WrongBook = (() => {
 
     /** 获取指定数量的错题（用于重练） */
     function getRetryQuestions(limit, type) {
-        let items = type ? getAll().filter(item => item.type === type) : getAll();
+        let items = type && type !== 'all' ? getAll().filter(item => item.type === type) : getAll();
         items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         return items.slice(0, limit || items.length);
     }

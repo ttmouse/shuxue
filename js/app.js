@@ -676,6 +676,14 @@ function retryWrongQuestions() {
 
     showPage('page-retry');
     renderRetryQuestion();
+
+    // 绑定反馈面板的下一题按钮
+    const fbNext = $('retry-fb-next');
+    if (fbNext) fbNext.onclick = nextRetryQuestion;
+
+    // 绑定提交按钮
+    const submitBtn = $('c-submit');
+    if (submitBtn) submitBtn.onclick = submitRetryAnswer;
 }
 
 // ============================================================
@@ -687,29 +695,30 @@ function renderRetryQuestion() {
     const total = state.retryQuestions.length;
     const q = state.retryQuestions[idx];
 
-    $('retry-num').textContent = idx + 1;
-    $('retry-total').textContent = total;
     $('retry-progress-fill').style.width = `${(idx / total) * 100}%`;
-    $('retry-type-label').textContent = `错题重练 (${idx + 1}/${total})`;
-    $('retry-question-text').textContent = q.question;
+    $('retry-step').textContent = `${idx + 1}/${total}`;
+    $('retry-law').textContent = `错题重练 (${idx + 1}/${total})`;
+    $('retry-correct').textContent = state.retryCorrectCount;
+    $('retry-wrong').textContent = state.retryWrongCount;
+    $('retry-question-text').innerHTML = typeof highlightOperators === 'function' ? highlightOperators(q.question) : q.question;
 
-    const input = $('retry-answer-input');
-    input.value = '';
-    input.className = 'answer-input';
-    input.disabled = false;
-    input.focus();
+    // 重置键盘输入
+    pracInput = '';
+    const display = $('c-input-text');
+    if (display) display.textContent = '';
+    const wrap = $('c-input-wrap');
+    if (wrap) wrap.classList.remove('has-val');
 
-    $('retry-feedback-area').style.display = 'none';
+    $('retry-fb').style.display = 'none';
 }
 
 function submitRetryAnswer() {
-    const input = $('retry-answer-input');
-    const userAnswer = input.value.trim();
+    const userAnswer = pracInput.trim();
 
     if (userAnswer === '') {
-        input.focus();
-        input.placeholder = '请先输入答案！';
-        setTimeout(() => { input.placeholder = '输入你的答案…'; }, 1500);
+        const display = $('c-input-text');
+        if (display) { display.textContent = '请输入答案！'; display.className = 'c-play-input-text err'; }
+        setTimeout(() => { if (display) { display.textContent = pracInput; display.className = 'c-play-input-text'; } }, 1200);
         return;
     }
 
@@ -717,33 +726,38 @@ function submitRetryAnswer() {
     const q = state.retryQuestions[idx];
     const isCorrect = compareAnswers(userAnswer, q.correctAnswer);
 
-    input.disabled = true;
+    // 禁用键盘
+    const kp = $('c-keys');
+    if (kp) kp.style.pointerEvents = 'none';
 
-    // 防冲撞：当前回车已经用于提交，屏蔽键盘翻题 200ms
     justSubmitted = true;
     setTimeout(() => { justSubmitted = false; }, 200);
 
     if (isCorrect) {
         state.retryCorrectCount++;
-        input.className = 'answer-input correct';
+        $('retry-correct').textContent = state.retryCorrectCount;
         WrongBook.remove(q.id);
         Sound.playCorrect();
-        showRetryFeedback('correct', q);
+        showRetryFeedback('correct', q, userAnswer);
     } else {
         state.retryWrongCount++;
-        input.className = 'answer-input wrong';
+        $('retry-wrong').textContent = state.retryWrongCount;
         Sound.playWrong();
         showRetryFeedback('wrong', q, userAnswer);
     }
 }
 
 function showRetryFeedback(result, q, userAnswer) {
-    const area = $('retry-feedback-area');
-    const icon = $('retry-feedback-icon');
-    const text = $('retry-feedback-text');
-    const detail = $('retry-feedback-detail');
+    const area = $('retry-fb');
+    const icon = $('retry-fb-icon');
+    const text = $('retry-fb-title');
+    const detail = $('retry-fb-detail');
 
-    area.style.display = 'block';
+    // 隐藏键盘
+    const kp = $('c-keys');
+    if (kp) kp.style.display = 'none';
+
+    area.className = 'c-fb show ' + result;
 
     if (result === 'correct') {
         icon.textContent = '✅';
@@ -759,11 +773,15 @@ function showRetryFeedback(result, q, userAnswer) {
     }
 
     const isLast = state.retryIndex >= state.retryQuestions.length - 1;
-    $('retry-next-btn').textContent = isLast ? '📊 查看结果' : '下一题 →';
+    $('retry-fb-next').textContent = isLast ? '查看结果' : '下一题';
 }
 
 function nextRetryQuestion() {
     state.retryIndex++;
+
+    // 恢复键盘
+    const kp = $('c-keys');
+    if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
 
     if (state.retryIndex >= state.retryQuestions.length) {
         // 重练结束
@@ -871,9 +889,9 @@ function escapeHtml(str) {
 document.addEventListener('keydown', (e) => {
     // 只处理反馈区可见时的情况
     const fb = $('c-fb');
-    const retryFb = $('retry-feedback-area');
+    const retryFb = $('retry-fb');
     const feedbackVisible = fb && (fb.style.display === 'flex' || fb.style.display === 'block');
-    const retryVisible = retryFb && retryFb.style.display === 'block';
+    const retryVisible = retryFb && (retryFb.style.display === 'flex' || retryFb.style.display === 'block');
 
     // justSubmitted 防冲撞：避免提交用的回车同时触发翻题
     if (justSubmitted) return;
@@ -882,7 +900,7 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         if (feedbackVisible && $('c-fb-next')) {
             nextQuestion();
-        } else if (retryVisible && $('retry-next-btn')) {
+        } else if (retryVisible && $('retry-fb-next')) {
             nextRetryQuestion();
         }
     }
@@ -914,7 +932,11 @@ function pracKeypadInit() {
     const btn = e.target.closest('button');
     if (!btn) return;
     if (btn.id === 'c-submit') {
-      submitAnswer();
+      if (document.querySelector('#page-retry.active')) {
+        submitRetryAnswer();
+      } else {
+        submitAnswer();
+      }
       return;
     }
     const val = btn.dataset.v;
@@ -934,6 +956,10 @@ function pracKeypadInit() {
 
   document.addEventListener('keydown', (e) => {
     if (!document.querySelector('#page-practice.active, #page-retry.active')) return;
+    // 重练模式使用自己的提交函数
+    if (document.querySelector('#page-retry.active') && e.key === 'Enter') {
+      submitRetryAnswer(); e.preventDefault(); return;
+    }
     if (/^[0-9.\-<>=]$/.test(e.key)) {
       pracInput += e.key;
       display.textContent = pracInput;

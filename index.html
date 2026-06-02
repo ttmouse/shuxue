@@ -263,35 +263,70 @@
 
 <!-- 错题重练页 -->
 <div id="page-retry" class="page page-old">
-  <div class="old-top-bar">
-    <button class="old-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
-    <span class="old-top-title">传统口算</span>
+  <div class="mode-top-bar">
+    <button class="top-back-btn" onclick="quitRetry()"><i data-lucide="arrow-left"></i></button>
+    <span class="top-title">错题重练</span>
     <div style="width:44px;"></div>
   </div>
-  <div class="practice-container">
-    <div class="practice-header">
-      <div class="progress-info"><span id="retry-num">1</span> / <span id="retry-total">0</span></div>
-      <div class="score-display"><span style="color:var(--danger);font-weight:700;">错题重练</span></div>
-      <button class="btn btn-sm btn-text" onclick="quitRetry()">退出</button>
-    </div>
-    <div class="progress-bar">
-      <div class="progress-fill" id="retry-progress-fill" style="width:0%"></div>
-    </div>
-    <div class="question-area">
-      <div class="question-number" id="retry-type-label">错题重练</div>
-      <div class="question-text" id="retry-question-text">?</div>
-    </div>
-    <div class="answer-area" id="retry-answer-area">
-      <div class="input-group">
-        <input type="text" id="retry-answer-input" class="answer-input" inputmode="decimal" autocomplete="off" placeholder="输入你的答案…" onkeydown="if(event.key==='Enter') submitRetryAnswer()">
-        <button class="btn btn-primary" onclick="submitRetryAnswer()">确定</button>
+  <div class="c-play" id="c-play">
+    <div class="c-play-progress">
+      <div class="c-play-pb-track">
+        <div class="c-play-pb-fill" id="retry-progress-fill" style="width:0%"></div>
+      </div>
+      <span class="c-play-step" id="retry-step">1/20</span>
+      <div class="c-play-score">
+        <span class="c-cor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> <span id="retry-correct">0</span></span>
+        <span class="c-str"><span id="retry-wrong">0</span></span>
       </div>
     </div>
-    <div class="feedback-area" id="retry-feedback-area" style="display:none;">
-      <div class="feedback-icon" id="retry-feedback-icon"></div>
-      <div class="feedback-text" id="retry-feedback-text"></div>
-      <div class="feedback-detail" id="retry-feedback-detail"></div>
-      <button class="btn btn-primary" id="retry-next-btn" onclick="nextRetryQuestion()">下一题</button>
+
+    <div class="c-play-core">
+      <div class="c-play-law" id="retry-law">错题重练</div>
+      <div class="c-play-q" id="retry-question-text">?</div>
+      <div class="c-play-input" id="c-input-wrap">
+        <span class="c-play-input-text" id="c-input-text"></span>
+        <span class="c-play-cursor" id="c-cursor">|</span>
+      </div>
+    </div>
+
+    <div class="c-play-keys" id="c-keys">
+      <div class="c-pr">
+        <button class="c-key" data-v="7">7</button>
+        <button class="c-key" data-v="8">8</button>
+        <button class="c-key" data-v="9">9</button>
+        <button class="c-key c-key-bk" data-v="bk">⌫</button>
+      </div>
+      <div class="c-pr">
+        <button class="c-key" data-v="4">4</button>
+        <button class="c-key" data-v="5">5</button>
+        <button class="c-key" data-v="6">6</button>
+        <button class="c-key c-key-op" data-v="−">−</button>
+      </div>
+      <div class="c-pr">
+        <button class="c-key" data-v="1">1</button>
+        <button class="c-key" data-v="2">2</button>
+        <button class="c-key" data-v="3">3</button>
+        <button class="c-key c-key-cl" data-v="cl">清空</button>
+      </div>
+      <div class="c-pr">
+        <button class="c-key" data-v=".">.</button>
+        <button class="c-key" data-v="0">0</button>
+        <button class="c-key" data-v="/">/</button>
+        <button class="c-key c-key-go" id="c-submit">确定</button>
+      </div>
+      <div class="c-pr c-pr-cmp" style="display:none">
+        <button class="c-key c-key-cmp" data-v=">">&gt;</button>
+        <button class="c-key c-key-cmp" data-v="<">&lt;</button>
+        <button class="c-key c-key-cmp" data-v="=">=</button>
+      </div>
+    </div>
+
+    <div class="c-fb" id="retry-fb" style="display:none">
+      <div class="c-fb-icon" id="retry-fb-icon"></div>
+      <div class="c-fb-title" id="retry-fb-title"></div>
+      <div class="c-fb-law" id="c-fb-law"></div>
+      <div class="c-fb-bd" id="retry-fb-detail"></div>
+      <button class="c-fb-next" id="retry-fb-next">下一题</button>
     </div>
   </div>
 </div>

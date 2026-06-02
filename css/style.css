@@ -824,6 +824,15 @@ body {
   background: var(--surface); cursor: pointer; outline: none;
 }
 
+/* Retry page */
+#page-retry.page-old.active {
+  max-width: 480px; margin: 0 auto; width: 100vw; padding: 0 !important;
+  height: 100dvh; display: flex; flex-direction: column; position: relative; overflow: hidden;
+}
+#page-retry .mode-top-bar { width: 100%; align-self: stretch; }
+#page-retry .c-play { flex: 1; min-height: 0; width: 100%; padding: 0 var(--s4); }
+#page-retry .c-play-keys { padding-left: 0; padding-right: 0; }
+
 /* Practice page */
 #page-practice.page-old.active {
   max-width: 480px; margin: 0 auto; width: 100vw; padding: 0 !important;
@@ -1035,7 +1044,8 @@ body {
 .progress-info { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
 .progress-info span:first-child { font-size: 26px; font-weight: 700; color: var(--text); }
 
-.progress-track { height: 6px; background: var(--n100); border-radius: 3px; margin-bottom: var(--s8); overflow: hidden; }
+.progress-track,
+.progress-bar { height: 6px; background: var(--n100); border-radius: 3px; margin-bottom: var(--s8); overflow: hidden; }
 .progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.4s var(--ease-spring); }
 
 .question-area { text-align: center; margin-bottom: var(--s8); padding: var(--s5) 0 var(--s4); }
