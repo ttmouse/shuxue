@@ -97,60 +97,61 @@
 
 <!-- 答题页 -->
 <div id="page-practice" class="page page-old">
-  <div class="old-top-bar">
-    <button class="old-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
-    <span class="old-top-title">传统口算</span>
+  <div class="mode-top-bar">
+    <button class="top-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
+    <span class="top-title">传统口算</span>
     <div style="width:44px;"></div>
   </div>
-  <div class="practice-container">
-    <div class="prac-header">
-      <div class="prac-progress"><span id="question-num">1</span>/<span id="question-total">20</span></div>
-      <div class="prac-score">
-        <span class="prac-correct" id="correct-count">0</span>
-        <span class="prac-sep">/</span>
-        <span class="prac-wrong" id="wrong-count">0</span>
+  <div style="flex:1;overflow-y:auto;padding:0;">
+  <div class="c-play" id="c-play">
+    <div class="c-play-progress">
+      <div class="c-play-pb-track">
+        <div class="c-play-pb-fill" id="progress-fill" style="width:0%"></div>
       </div>
-      <button class="prac-quit" onclick="quitPractice()">退出</button>
+      <span class="c-play-step"><span id="question-num">1</span>/<span id="question-total">20</span></span>
+      <div class="c-play-score">
+        <span class="c-cor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> <span id="correct-count">0</span></span>
+        <span class="c-str"><span id="wrong-count">0</span></span>
+      </div>
     </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-    </div>
-    <div class="question-area" id="question-area">
-      <div class="question-number" id="question-type-label">第 1 题 · 加减法</div>
-      <div class="question-text" id="question-text">123 + 456 = ?</div>
-    </div>
-    <div class="answer-area" id="answer-area">
-      <div class="prac-display" id="prac-display">
-        <span class="prac-display-text" id="prac-display-text"></span>
+
+    <div class="c-play-core">
+      <div class="c-play-law" id="question-type-label">第 1 题 · 加减法</div>
+      <div class="c-play-q" id="question-text">123 + 456 = ?</div>
+      <div class="c-play-input" id="prac-display">
+        <span class="c-play-input-text" id="prac-display-text"></span>
+        <span class="c-play-cursor" id="prac-cursor">|</span>
       </div>
       <input type="hidden" id="answer-input">
     </div>
-    <div class="prac-keypad" id="prac-keypad">
-      <div class="kp-row">
-        <button class="kp-btn kp-prac" data-val="1">1</button>
-        <button class="kp-btn kp-prac" data-val="2">2</button>
-        <button class="kp-btn kp-prac" data-val="3">3</button>
-        <button class="kp-btn kp-prac" data-val="−">−</button>
+
+    <div class="c-play-keys" id="prac-keypad">
+      <div class="c-pr">
+        <button class="c-key" data-v="7">7</button>
+        <button class="c-key" data-v="8">8</button>
+        <button class="c-key" data-v="9">9</button>
+        <button class="c-key c-key-bk" data-v="bk">⌫</button>
       </div>
-      <div class="kp-row">
-        <button class="kp-btn kp-prac" data-val="4">4</button>
-        <button class="kp-btn kp-prac" data-val="5">5</button>
-        <button class="kp-btn kp-prac" data-val="6">6</button>
-        <button class="kp-btn kp-bksp" data-val="bksp">⌫</button>
+      <div class="c-pr">
+        <button class="c-key" data-v="4">4</button>
+        <button class="c-key" data-v="5">5</button>
+        <button class="c-key" data-v="6">6</button>
+        <button class="c-key c-key-op" data-v="−">−</button>
       </div>
-      <div class="kp-row">
-        <button class="kp-btn kp-prac" data-val="7">7</button>
-        <button class="kp-btn kp-prac" data-val="8">8</button>
-        <button class="kp-btn kp-prac" data-val="9">9</button>
-        <button class="kp-btn kp-clear-prac" data-val="clear">清空</button>
+      <div class="c-pr">
+        <button class="c-key" data-v="1">1</button>
+        <button class="c-key" data-v="2">2</button>
+        <button class="c-key" data-v="3">3</button>
+        <button class="c-key c-key-cl" data-v="cl">清空</button>
       </div>
-      <div class="kp-row">
-        <button class="kp-btn kp-prac" data-val="0">0</button>
-        <button class="kp-btn kp-prac" data-val=".">.</button>
-        <button class="kp-btn kp-prac" data-val="/">/</button>
-        <button class="kp-btn kp-submit-prac" id="prac-submit" onclick="(function(){ if(document.querySelector('#page-practice.active,#page-retry.active')) submitAnswer(); })()">确定</button>
+      <div class="c-pr">
+        <button class="c-key" data-v=".">.</button>
+        <button class="c-key" data-v="0">0</button>
+        <button class="c-key" data-v="/">/</button>
+        <button class="c-key c-key-go" id="prac-submit" onclick="submitAnswer()">确定</button>
       </div>
     </div>
+
     <div class="confirm-overlay" id="confirm-overlay">
     <div class="confirm-sheet">
       <div class="confirm-title">退出练习</div>
@@ -161,12 +162,13 @@
       </div>
     </div>
   </div>
-  <div class="feedback-area" id="feedback-area" style="display:none;">
-      <div class="feedback-icon" id="feedback-icon"></div>
-      <div class="feedback-text" id="feedback-text"></div>
-      <div class="feedback-detail" id="feedback-detail"></div>
-      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">下一题</button>
+  <div class="c-fb" id="feedback-area" style="display:none">
+      <div class="c-fb-icon" id="feedback-icon"></div>
+      <div class="c-fb-title" id="feedback-text"></div>
+      <div class="c-fb-bd" id="feedback-detail"></div>
+      <button class="c-fb-next" id="next-btn" onclick="nextQuestion()">下一题</button>
     </div>
+  </div>
   </div>
 </div>
 

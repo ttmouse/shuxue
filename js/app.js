@@ -391,7 +391,7 @@ function showFeedback(result, q, userAnswer) {
     const kp = document.getElementById('prac-keypad');
     if (kp) kp.style.display = 'none';
 
-    area.style.display = 'block';
+    area.className = 'c-fb show ' + result;
 
     if (result === 'correct') {
         icon.textContent = '✅';
@@ -454,7 +454,7 @@ function createNextBar() {
   bar.className = 'prac-next-bar';
   bar.style.display = 'none';
   const isLast = state.currentIndex >= state.questions.length - 1;
-  bar.innerHTML = `<button class="kp-btn kp-submit-prac" onclick="nextQuestion()" style="flex:1;">${isLast ? '查看结果' : '下一题'}</button>`;
+  bar.innerHTML = `<button class="c-key c-key-go" onclick="nextQuestion()" style="flex:1;">${isLast ? '查看结果' : '下一题'}</button>`;
   const kp = document.getElementById('prac-keypad');
   if (kp && kp.parentNode) kp.parentNode.insertBefore(bar, kp.nextSibling);
   return bar;
@@ -871,17 +871,18 @@ function pracKeypadInit() {
   keypad.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if (!btn || btn.id === 'prac-submit') return;
-    const val = btn.dataset.val;
+    const val = btn.dataset.v;
 
-    if (val === 'bksp') {
+    if (val === 'bk') {
       pracInput = pracInput.slice(0, -1);
-    } else if (val === 'clear') {
+    } else if (val === 'cl') {
       pracInput = '';
     } else {
       pracInput += val;
     }
 
     display.textContent = pracInput;
+    document.getElementById('prac-display').classList.toggle('has-val', pracInput !== '');
     document.getElementById('answer-input').value = pracInput;
     if (Framework.sound) Framework.sound.playTap();
   });
@@ -913,6 +914,8 @@ function pracResetInput() {
   if (d) d.textContent = '';
   const h = document.getElementById('answer-input');
   if (h) h.value = '';
+  const pd = document.getElementById('prac-display');
+  if (pd) pd.classList.remove('has-val');
 }
 
 pracKeypadInit();

@@ -1,0 +1,764 @@
+$ git diff css/style-new.css
+[exit 0]
+diff --git a/css/style-new.css b/css/style-new.css
+index 1a906b2..2874c14 100644
+--- a/css/style-new.css
++++ b/css/style-new.css
+@@ -674,7 +674,6 @@ body {
+     flex-shrink: 0;
+ }
+ 
+-
+ /* ----- 按年级分组的知识点选择 ----- */
+ .grade-group {
+     margin-bottom: 8px;
+@@ -714,40 +713,11 @@ body {
+     padding: 6px 8px;
+     background: #fff;
+ }
+-.topic-item {
+-    display: flex;
+-    align-items: center;
+-    gap: 6px;
+-    padding: 7px 10px;
+-    border-radius: 6px;
+-    font-size: 13px;
+-    cursor: pointer;
+-    transition: all 0.12s;
+-    border: 1px solid transparent;
+-}
+-.topic-item:hover { background: var(--border-light); border-color: var(--border); }
+-.topic-item:has(input:checked) {
+-    background: var(--primary-subtle);
+-    border-color: var(--primary-light);
+-}
+-.topic-item input[type="checkbox"] {
+-    width: 15px; height: 15px;
+-    accent-color: var(--primary);
+-    flex-shrink: 0;
+-    margin: 0;
+-}
+-.topic-item .topic-desc {
+-    font-size: 11px;
+-    color: var(--text-light);
+-    white-space: nowrap;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-}
++/* .topic-item and .grade-group styles removed — replaced by iOS-style .topic-card */
+ @media (max-width: 480px) {
+     .grade-topics { grid-template-columns: 1fr; }
+ }
+ 
+-
+ /* ----- 响应式 ----- */
+ @media (max-width: 480px) {
+     .page.active { padding: 12px; }
+@@ -1341,7 +1311,7 @@ button:disabled {
+    ============================================================= */
+ /* 设置页容器 — iOS 卡片风格 */
+ .settings-container {
+-  padding: 20px 16px !important;
++  padding: 20px 0 !important;
+   border: none !important;
+   box-shadow: none !important;
+   background: transparent !important;
+@@ -1363,7 +1333,7 @@ button:disabled {
+ }
+ 
+ .settings-card .topic-card {
+-  padding: 0;
++  padding: 0 10px;
+ }
+ 
+ .settings-card-header {
+@@ -1371,6 +1341,7 @@ button:disabled {
+   align-items: center;
+   gap: 8px;
+   padding: 14px 16px 6px;
++  -webkit-tap-highlight-color: transparent;
+ }
+ 
+ .settings-card-accent {
+@@ -1427,9 +1398,12 @@ button:disabled {
+ }
+ 
+ .topic-card .topic-item:active,
+-.topic-card .topic-item:focus {
+-  background: transparent;
+-  outline: none;
++.topic-card .topic-item:focus,
++.topic-card *:active,
++.topic-card *:focus {
++  background: transparent !important;
++  outline: none !important;
++  -webkit-tap-highlight-color: transparent !important;
+ }
+ 
+ .topic-card .topic-item-content {
+@@ -1460,11 +1434,11 @@ button:disabled {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+-  font-size: 18px;
++  font-size: 22px;
++  line-height: 1;
+   color: var(--text-tertiary);
+   font-weight: 300;
+   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+-  margin-top: 2px;
+   -webkit-tap-highlight-color: transparent;
+ }
+ 
+@@ -1578,6 +1552,81 @@ button:disabled {
+   transition: width .4s ease-out;
+ }
+ 
++/* =============================================================
++   自定义确认弹窗
++   ============================================================= */
++.confirm-overlay {
++  position: fixed;
++  inset: 0;
++  z-index: 900;
++  background: rgba(0,0,0,0.35);
++  backdrop-filter: blur(2px);
++  display: none;
++  align-items: center;
++  justify-content: center;
++  padding: 32px;
++}
++
++.confirm-overlay.show {
++  display: flex;
++}
++
++.confirm-sheet {
++  background: #fff;
++  border-radius: 16px;
++  padding: 28px 24px 20px;
++  max-width: 280px;
++  width: 100%;
++  text-align: center;
++  animation: popIn .2s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++
++.confirm-title {
++  font-size: 17px;
++  font-weight: 600;
++  color: #000;
++  margin-bottom: 6px;
++}
++
++.confirm-desc {
++  font-size: 13px;
++  color: #8e8e93;
++  line-height: 1.4;
++  margin-bottom: 20px;
++}
++
++.confirm-actions {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++}
++
++.confirm-btn {
++  padding: 12px 0;
++  border: none;
++  border-radius: 12px;
++  font-size: 15px;
++  font-weight: 600;
++  cursor: pointer;
++  font-family: inherit;
++  transition: all 0.1s ease;
++  -webkit-tap-highlight-color: transparent;
++}
++
++.confirm-btn:active {
++  transform: scale(0.97);
++}
++
++.confirm-btn-primary {
++  background: var(--primary);
++  color: #fff;
++}
++
++.confirm-btn-cancel {
++  background: #f2f2f7;
++  color: #3c3c3c;
++}
++
+ /* =============================================================
+    通用组件 — 弹出面板
+    ============================================================= */
+@@ -2415,8 +2464,14 @@ button:disabled {
+    ============================================================= */
+ /* 练习容器垂直居中 */
+ .practice-container {
+-  margin-top: auto !important;
+-  margin-bottom: auto !important;
++  width: 100%;
++  max-width: 480px;
++  background: #fff;
++  border-radius: 16px;
++  padding: 20px 20px 24px;
++  box-shadow: 0 1px 3px rgba(0,0,0,.04);
++  margin-top: auto;
++  margin-bottom: auto;
+ }
+ 
+ .prac-header {
+@@ -2463,23 +2518,19 @@ button:disabled {
+ }
+ 
+ .prac-quit {
+-  width: 36px;
+-  height: 36px;
+   border: none;
+-  border-radius: var(--r-full);
+-  background: var(--n100);
+-  color: var(--text-secondary);
+-  font-size: 15px;
++  background: none;
++  color: var(--text-tertiary);
++  font-size: 13px;
++  font-weight: 500;
+   cursor: pointer;
+-  display: flex;
+-  align-items: center;
+-  justify-content: center;
+-  transition: all var(--fast) var(--ease-smooth);
++  font-family: inherit;
++  padding: var(--s1) var(--s2);
++  transition: color 0.12s ease;
+ }
+ 
+-.prac-quit:hover {
+-  background: var(--red);
+-  color: #fff;
++.prac-quit:active {
++  color: var(--text);
+ }
+ 
+ /* 进度条 */
+@@ -2487,15 +2538,15 @@ button:disabled {
+   height: 2px;
+   background: var(--n150);
+   border-radius: 1px;
+-  margin-bottom: var(--s6);
++  margin-bottom: 20px;
+   overflow: hidden;
+ }
+ 
+ /* 题目区 */
+ .question-area {
+   text-align: center;
+-  margin-bottom: var(--s6);
+-  padding: var(--s4) 0;
++  margin-bottom: 20px;
++  padding: 8px 0;
+ }
+ 
+ .question-number {
+@@ -2640,6 +2691,492 @@ button:disabled {
+   background: var(--primary-light);
+ }
+ 
++@media (max-width: 400px) {
++  .home-logo h1 { font-size: 24px; }
++  .mode-card { padding: var(--s4); }
++  .mode-card-icon { width: 48px; height: 48px; font-size: 24px; }
++  .game24-number { width: 60px; height: 76px; font-size: 28px; }
++  .clever-play-question { font-size: 30px; }
++  .clever-play-input-text { font-size: 26px; }
++  .clever-card { padding: var(--s3) var(--s4); }
++}
++
++
++/* =============================================================
++   运算定律巧算 — clever.js
++   ============================================================= */
++
++/* ---- 入场动画 ---- */
++@keyframes cCardIn {
++  from { opacity: 0; transform: translateY(16px) scale(0.96); }
++  to { opacity: 1; transform: translateY(0) scale(1); }
++}
++@keyframes cPulse {
++  0%, 100% { transform: scale(1); }
++  50% { transform: scale(1.08); }
++}
++@keyframes cShake {
++  0%, 100% { transform: translateX(0); }
++  20% { transform: translateX(-6px); }
++  40% { transform: translateX(6px); }
++  60% { transform: translateX(-4px); }
++  80% { transform: translateX(4px); }
++}
++@keyframes cBounce {
++  0% { transform: scale(0.8); opacity: 0; }
++  50% { transform: scale(1.15); }
++  70% { transform: scale(0.95); }
++  100% { transform: scale(1); opacity: 1; }
++}
++@keyframes cShimmer {
++  0% { background-position: -200% 0; }
++  100% { background-position: 200% 0; }
++}
++@keyframes cFloat {
++  0%, 100% { transform: translateY(0); }
++  50% { transform: translateY(-4px); }
++}
++@keyframes cResultIn {
++  from { opacity: 0; transform: scale(0.9); }
++  to { opacity: 1; transform: scale(1); }
++}
++
++/* ---- 选择页 ---- */
++.c-sel {
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  height: 100%;
++  padding: 16px 0 0;
++  max-width: 420px;
++  margin: 0 auto;
++  width: 100%;
++  position: relative;
++}
++.c-sel-grid {
++  display: flex;
++  flex-direction: column;
++  gap: 12px;
++  width: 100%;
++  flex: 1;
++  overflow-y: auto;
++  min-height: 0;
++  padding: 0 16px;
++  position: relative;
++  -webkit-mask-image: linear-gradient(transparent 0%, black 5%, black 90%, transparent 100%);
++  mask-image: linear-gradient(transparent 0%, black 5%, black 90%, transparent 100%);
++}
++.c-sel.is-scrolled .c-sel-grid {
++  -webkit-mask-image: linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%);
++  mask-image: linear-gradient(transparent 0%, black 15%, black 85%, transparent 100%);
++}
++
++/* 卡片入场动画 */
++.c-sel-card {
++  display: flex; align-items: center; gap: 14px;
++  padding: 16px 18px; background: var(--surface);
++  border: 1.5px solid var(--n150); border-radius: 16px;
++  cursor: pointer; user-select: none;
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++  animation: cCardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
++  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
++  /* 交错延迟由 JS 设置 */
++}
++.c-sel-card:hover {
++  border-color: var(--n200);
++  transform: translateY(-2px);
++  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
++}
++.c-sel-card:active { transform: scale(0.98); }
++.c-sel-card.active {
++  border-color: var(--primary);
++  background: linear-gradient(135deg, #F0FDE7 0%, #E8FAC9 100%);
++  box-shadow: 0 0 0 3px rgba(88, 204, 2, 0.15), 0 6px 20px rgba(88, 204, 2, 0.15);
++}
++.c-sel-card-icon {
++  width: 46px; height: 46px; border-radius: 14px;
++  display: flex; align-items: center; justify-content: center;
++  flex-shrink: 0; color: #fff;
++  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
++}
++.c-sel-card:hover .c-sel-card-icon { transform: scale(1.08) rotate(-3deg); }
++.c-sel-card-icon svg { width: 22px; height: 22px; }
++.c-sel-card-body { flex: 1; min-width: 0; }
++.c-sel-card-label { font-size: 15px; font-weight: 800; color: var(--text); }
++.c-sel-card-desc { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
++.c-sel-card-check {
++  width: 26px; height: 26px; border-radius: 50%;
++  border: 2px solid var(--n200);
++  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++  background: var(--surface);
++}
++.c-sel-card.active .c-sel-card-check {
++  background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%);
++  border-color: var(--primary);
++  color: #fff; animation: cBounce 0.3s;
++  box-shadow: 0 3px 10px rgba(88, 204, 2, 0.4);
++}
++.c-sel-card.active .c-sel-card-check svg { width: 14px; height: 14px; }
++
++/* c-sel-diff 已移除，相关 CSS 已清理 */
++
++.c-sel-bottom {
++  width: 100%;
++  background: var(--surface);
++  padding: 16px 16px 20px;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 10px;
++  flex-shrink: 0;
++}
++.c-sel-start {
++  width: 100%; padding: 18px;
++  background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%);
++  color: #fff; border: none; border-radius: 16px;
++  font-size: 17px; font-weight: 900;
++  cursor: pointer; font-family: inherit;
++  box-shadow: 0 6px 24px rgba(88, 204, 2, 0.4);
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++  letter-spacing: 0.02em;
++}
++.c-sel-start:hover {
++  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
++  transform: translateY(-2px);
++  box-shadow: 0 10px 32px rgba(88, 204, 2, 0.5);
++}
++.c-sel-start:active {
++  transform: translateY(1px);
++  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.35);
++}
++
++
++/* ---- 训练页 ---- */
++.c-play {
++  display: flex; flex-direction: column; gap: 0;
++  max-width: 420px; margin: 0 auto; width: 100%; min-height: 100%;
++}
++.c-play-top {
++  display: flex; align-items: center; justify-content: space-between;
++  padding: var(--s2) 0;
++}
++.c-play-back {
++  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
++  border: none; background: transparent; color: var(--text-secondary);
++  cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s;
++}
++.c-play-back:hover { background: var(--n100); color: var(--text); }
++.c-play-back:active { background: var(--n200); }
++.c-play-back svg { width: 20px; height: 20px; }
++.c-play-cat { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
++.c-play-score { display: flex; align-items: center; gap: var(--s3); font-size: 13px; font-weight: 600; color: var(--text-secondary); }
++.c-play-score span { display: flex; align-items: center; gap: 3px; }
++.c-play-score .c-cor svg { width: 14px; height: 14px; color: var(--primary); }
++.c-play-score .c-str svg { width: 14px; height: 14px; }
++
++/* 进度条 */
++.c-play-progress {
++  display: flex; align-items: center; gap: 12px; padding: 0;
++  margin-top: var(--s2);
++}
++.c-play-pb-track {
++  flex: 1; height: 6px; background: var(--n100); border-radius: 3px;
++  overflow: hidden; position: relative;
++}
++.c-play-pb-fill {
++  height: 100%; border-radius: 3px;
++  background: linear-gradient(90deg, var(--primary) 0%, #7FDD38 100%);
++  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
++  position: relative;
++  box-shadow: 0 0 8px rgba(88, 204, 2, 0.5);
++}
++.c-play-step {
++  font-size: 12px; color: var(--text-tertiary); font-weight: 700;
++  white-space: nowrap; font-variant-numeric: tabular-nums;
++  min-width: 36px; text-align: right;
++}
++
++/* 题目核心 */
++.c-play-core {
++  flex: 1; display: flex; flex-direction: column; justify-content: center;
++  align-items: center; gap: 20px; padding: 24px 0 16px;
++}
++.c-play-law {
++  font-size: 12px; color: var(--text-secondary); font-weight: 700;
++  background: linear-gradient(135deg, var(--n50) 0%, var(--n100) 100%);
++  padding: 6px 16px; border-radius: 20px;
++  letter-spacing: 0.03em;
++  border: 1px solid var(--n100);
++  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
++}
++.c-play-q {
++  font-size: 42px; font-weight: 900; color: var(--text);
++  text-align: center; line-height: 1.2; letter-spacing: 0.02em;
++  animation: cCardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
++  text-shadow: 0 2px 4px rgba(0,0,0,0.05);
++}
++
++/* 输入 */
++.c-play-input {
++  display: inline-flex; align-items: center; justify-content: center; gap: 2px;
++  min-width: 180px; min-height: 60px; padding: 12px 24px;
++  background: var(--surface); border: 2px solid var(--n150); border-radius: 16px;
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
++}
++.c-play-input.has-val {
++  border-color: var(--primary);
++  box-shadow: 0 0 0 4px rgba(88, 204, 2, 0.15), inset 0 2px 4px rgba(0,0,0,0.04);
++}
++.c-play-input.correct {
++  border-color: var(--primary); background: #F0FDE7;
++  animation: cBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: 0 0 0 4px rgba(88, 204, 2, 0.2);
++}
++.c-play-input.wrong {
++  border-color: var(--red); background: #FFF5F5;
++  animation: cShake 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: 0 0 0 4px rgba(255, 75, 75, 0.15);
++}
++.c-play-input-text { font-size: 34px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: 0.02em; }
++.c-play-input-text.err { color: var(--red); font-size: 16px; font-weight: 600; }
++.c-play-cursor {
++  font-size: 28px; font-weight: 300; color: var(--primary);
++  animation: blink 0.8s step-end infinite;
++}
++@keyframes blink { 50% { opacity: 0; } }
++.c-play-str { display: flex; align-items: center; gap: 3px; }
++.c-play-ok { color: var(--primary); font-weight: 800; }
++.c-play-no { color: var(--red); text-decoration: line-through; font-weight: 600; }
++.c-play-true { color: var(--primary); font-weight: 800; }
++
++/* 键盘 */
++.c-play-keys {
++  width: 100%; display: flex; flex-direction: column; gap: 10px;
++  user-select: none; padding: var(--s3) 0 var(--s6);
++}
++.c-pr { display: flex; gap: 8px; }
++.c-key {
++  background: var(--surface); color: var(--text); font-size: 22px; font-weight: 700;
++  flex: 1; height: 56px; border: 1.5px solid var(--n150); border-radius: 14px;
++  cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center;
++  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
++  -webkit-tap-highlight-color: transparent;
++  position: relative; overflow: hidden;
++}
++.c-key::before {
++  content: ''; position: absolute; inset: 0;
++  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%);
++  pointer-events: none;
++}
++.c-key:hover {
++  border-color: var(--n250);
++  transform: translateY(-1px);
++  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
++}
++.c-key:active {
++  transform: translateY(1px);
++  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
++  background: var(--n50);
++}
++.c-key-op { color: var(--orange); font-weight: 800; }
++.c-key-bk {
++  background: var(--n50); border-color: var(--n150);
++  font-size: 15px; font-weight: 600; color: var(--text-secondary);
++}
++.c-key-bk:hover { background: var(--n100); }
++.c-key-bk:active { background: var(--n150); }
++.c-key-cl {
++  background: transparent; border-color: transparent;
++  font-size: 13px; font-weight: 600; color: var(--text-tertiary);
++}
++.c-key-cl:hover { color: var(--text-secondary); background: var(--n50); }
++.c-key-cl:active { background: var(--n100); transform: translateY(1px); }
++.c-key-go {
++  background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%);
++  color: #fff; border: none;
++  font-size: 17px; font-weight: 800;
++  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.35);
++}
++.c-key-go:hover {
++  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
++  transform: translateY(-2px);
++  box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
++}
++.c-key-go:active {
++  transform: translateY(1px);
++  box-shadow: 0 2px 8px rgba(88, 204, 2, 0.3);
++}
++
++/* 反馈 */
++.c-fb {
++  width: 100%; display: none; flex-direction: column; align-items: center; gap: 16px;
++  padding: 20px 16px; border-radius: 20px; margin-top: 12px;
++  animation: cfbIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++.c-fb.show { display: flex; }
++.c-fb.correct { background: linear-gradient(135deg, #F0FDE7 0%, #DCF5C8 100%); border: 1px solid rgba(88, 204, 2, 0.2); }
++.c-fb.wrong { background: linear-gradient(135deg, #FFF5F5 0%, #FFE5E5 100%); border: 1px solid rgba(255, 75, 75, 0.2); }
++@keyframes cfbIn {
++  from { opacity: 0; transform: translateY(20px) scale(0.95); }
++  to { opacity: 1; transform: translateY(0) scale(1); }
++}
++.c-fb-icon {
++  width: 52px; height: 52px; border-radius: 50%;
++  display: flex; align-items: center; justify-content: center;
++  animation: cBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
++}
++.c-fb.correct .c-fb-icon { background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%); color: #fff; }
++.c-fb.wrong .c-fb-icon { background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%); color: #fff; }
++.c-fb-icon svg { width: 26px; height: 26px; }
++.c-fb-title { font-size: 18px; font-weight: 800; color: var(--text); text-align: center; }
++.c-fb-law {
++  font-size: 12px; font-weight: 700; color: var(--text-secondary);
++  background: var(--surface); padding: 6px 16px; border-radius: 20px;
++  border: 1px solid var(--n100);
++  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
++}
++.c-fb-bd {
++  width: 100%; background: var(--surface); border-radius: 16px;
++  padding: 16px 20px; border: 1px solid var(--n100);
++  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
++}
++.c-bd-title {
++  font-size: 11px; font-weight: 700; color: var(--text-tertiary);
++  margin-bottom: var(--s3); letter-spacing: 0.06em; text-transform: uppercase;
++}
++.c-bd-steps { display: flex; flex-direction: column; gap: 4px; }
++.c-bd-line {
++  display: flex; align-items: center; justify-content: center; gap: 8px;
++  font-size: 17px; font-weight: 700; color: var(--text); padding: 3px 0; line-height: 1.4;
++}
++.c-bd-step-num {
++  width: 20px; height: 20px; border-radius: 50%; background: var(--n100);
++  font-size: 11px; font-weight: 700; color: var(--text-tertiary);
++  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
++}
++.c-bd-line:last-child { color: var(--primary); }
++.c-bd-hint {
++  font-size: 12px; color: var(--text-tertiary); padding: 6px 0 2px;
++  line-height: 1.5; font-weight: 500; text-align: left;
++  display: flex; align-items: flex-start; gap: 6px;
++}
++.c-bd-hint svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
++.c-fb-next {
++  width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%);
++  color: #fff; border: none; border-radius: 14px; font-size: 16px; font-weight: 800;
++  cursor: pointer; font-family: inherit;
++  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.35);
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++.c-fb-next:hover {
++  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
++  transform: translateY(-2px);
++  box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
++}
++.c-fb-next:active {
++  transform: translateY(1px);
++  box-shadow: 0 2px 8px rgba(88, 204, 2, 0.3);
++}
++
++/* 结果 */
++.c-result {
++  display: none; flex-direction: column; align-items: center; gap: 24px;
++  padding: 32px 0; text-align: center;
++  animation: cResultIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++.c-result.show { display: flex; }
++.c-result-icon {
++  font-size: 52px;
++  animation: cPulse 2s ease-in-out infinite;
++  filter: drop-shadow(0 4px 12px rgba(88, 204, 2, 0.3));
++}
++.c-result-title { font-size: 22px; font-weight: 900; color: var(--text); }
++.c-result-stats { width: 100%; display: flex; flex-direction: column; gap: 8px; }
++
++/* 环形进度 */
++.c-result-ring {
++  width: 130px; height: 130px; position: relative; margin: 0 auto;
++  filter: drop-shadow(0 4px 16px rgba(88, 204, 2, 0.2));
++}
++.c-result-ring svg {
++  width: 100%; height: 100%; transform: rotate(-90deg);
++}
++.c-result-ring-bg {
++  fill: none; stroke: var(--n100); stroke-width: 8;
++}
++.c-result-ring-fill {
++  fill: none;
++  stroke: url(#ringGradient);
++  stroke-width: 8;
++  stroke-linecap: round;
++  transition: stroke-dashoffset 1s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++.c-result-ring-text {
++  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
++  text-align: center;
++}
++.c-result-ring-pct { font-size: 30px; font-weight: 900; color: var(--text); }
++.c-result-ring-label { font-size: 11px; color: var(--text-tertiary); font-weight: 700; }
++
++.c-rs-row {
++  display: flex; justify-content: space-between; align-items: center;
++  padding: 12px 16px; background: linear-gradient(135deg, var(--n50) 0%, var(--surface) 100%);
++  border-radius: 12px; border: 1px solid var(--n100);
++  font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;
++  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
++}
++.c-rs-row span:last-child { font-weight: 900; font-size: 20px; color: var(--text); }
++.c-rs-row.correct-row span:last-child { color: var(--primary); }
++.c-rs-row.streak-row span:last-child { color: var(--orange); }
++.c-result-cats { width: 100%; padding: 8px 0; }
++.c-rc-title {
++  font-size: 12px; font-weight: 700; color: var(--text-tertiary);
++  margin-bottom: 8px; text-align: left; letter-spacing: 0.05em;
++}
++.c-rc-row {
++  display: flex; align-items: center; gap: 12px; padding: 8px 0;
++  font-size: 12px; color: var(--text-secondary);
++}
++.c-rc-row span:first-child { width: 64px; font-weight: 700; flex-shrink: 0; text-align: left; }
++.c-rc-bar { flex: 1; height: 8px; background: var(--n100); border-radius: 4px; overflow: hidden; }
++.c-rc-fill {
++  height: 100%; border-radius: 4px;
++  background: linear-gradient(90deg, var(--primary) 0%, #7FDD38 100%);
++  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
++  box-shadow: 0 0 8px rgba(88, 204, 2, 0.4);
++}
++.c-rc-row span:last-child { width: 36px; text-align: right; font-weight: 800; font-size: 13px; }
++.c-result-actions { display: flex; gap: 12px; width: 100%; margin-top: 16px; }
++.c-result-btn {
++  flex: 1; padding: 16px; border: none; border-radius: 14px;
++  font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit;
++  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++.c-result-btn:active { transform: scale(0.97); }
++.c-result-btn-primary {
++  background: linear-gradient(135deg, var(--primary) 0%, #4CAF00 100%);
++  color: #fff;
++  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.35);
++}
++.c-result-btn-primary:hover {
++  transform: translateY(-2px);
++  box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
++}
++.c-result-btn-primary:active { box-shadow: 0 2px 8px rgba(88, 204, 2, 0.3); }
++.c-result-btn-ghost {
++  background: var(--surface); color: var(--text-secondary);
++  border: 1.5px solid var(--n150);
++  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
++}
++.c-result-btn-ghost:hover {
++  border-color: var(--n200);
++  background: var(--n50);
++}
++
+ /* =============================================================
+    响应式
+    ============================================================= */
+@@ -2648,4 +3185,7 @@ button:disabled {
+   .mode-card { padding: var(--s4); }
+   .mode-card-icon { width: 48px; height: 48px; font-size: 24px; }
+   .game24-number { width: 60px; height: 76px; font-size: 28px; }
++  .c-play-q { font-size: 30px; }
++  .c-play-input-text { font-size: 26px; }
++  .c-sel-card { padding: var(--s3) var(--s4); }
+ }
