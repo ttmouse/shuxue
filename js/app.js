@@ -714,6 +714,7 @@ function renderRetryQuestion() {
 
 function submitRetryAnswer() {
     const userAnswer = pracInput.trim();
+    const qt = $('retry-question-text');
 
     if (userAnswer === '') {
         const display = $('retry-input-text');
@@ -736,43 +737,16 @@ function submitRetryAnswer() {
     if (isCorrect) {
         state.retryCorrectCount++;
         $('retry-correct').textContent = state.retryCorrectCount;
-        Sound.playCorrect();
-        showRetryFeedback('correct', q, userAnswer);
+        if (qt) { qt.innerHTML = (typeof highlightOperators === 'function' ? highlightOperators(q.question) : q.question).replace('?', `<span class="c-play-ok">${userAnswer}</span> ✓`); }
+        if (Framework.sound) Framework.sound.playCorrect();
+        setTimeout(() => nextRetryQuestion(), 500);
     } else {
         state.retryWrongCount++;
         $('retry-wrong').textContent = state.retryWrongCount;
-        Sound.playWrong();
-        showRetryFeedback('wrong', q, userAnswer);
+        if (qt) { qt.innerHTML = (typeof highlightOperators === 'function' ? highlightOperators(q.question) : q.question).replace('?', `<span class="c-play-no">${userAnswer}</span>`); }
+        if (Framework.sound) Framework.sound.playWrong();
+        setTimeout(() => nextRetryQuestion(), 600);
     }
-}
-
-function showRetryFeedback(result, q, userAnswer) {
-    const area = $('retry-fb');
-    const icon = $('retry-fb-icon');
-    const text = $('retry-fb-title');
-    const detail = $('retry-fb-detail');
-
-    // 隐藏键盘
-    const kp = $('retry-keys');
-    if (kp) kp.style.display = 'none';
-
-    area.className = 'c-fb show ' + result;
-
-    if (result === 'correct') {
-        icon.textContent = '✅';
-        text.textContent = '这次答对了！错题已从错题本移除 🎉';
-        detail.textContent = `${q.question.replace('?', q.correctAnswer)}`;
-    } else {
-        icon.textContent = '😅';
-        text.textContent = pickRandom(encourageMessages);
-        detail.innerHTML = `
-            你的答案：<span class="wrong-answer">${escapeHtml(userAnswer)}</span><br>
-            正确答案：<span class="correct-answer">${escapeHtml(q.correctAnswer)}</span>
-        `;
-    }
-
-    const isLast = state.retryIndex >= state.retryQuestions.length - 1;
-    $('retry-fb-next').textContent = isLast ? '查看结果' : '下一题';
 }
 
 function nextRetryQuestion() {
