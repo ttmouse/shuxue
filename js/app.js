@@ -807,20 +807,34 @@ function updateHomeStats() {
     updateWbBadge();
     const count = WrongBook.getCount();
     const statsEl = $('home-stats');
-    if (count > 0) {
-        statsEl.innerHTML = `错题本中有 <span>${count}</span> 道错题需要复习`;
-    } else {
-        statsEl.innerHTML = '错题本为空，继续加油！';
+    if (statsEl) {
+        if (count > 0) {
+            statsEl.innerHTML = `错题本中有 <span>${count}</span> 道错题需要复习`;
+        } else {
+            statsEl.innerHTML = '错题本为空，继续加油！';
+        }
     }
 
-    // 今日统计
+    // 更新新首页统计栏
+    if (typeof Stats !== 'undefined') {
+        const total = Stats.getTotal();
+        const today = Stats.getToday();
+        const totalEl = $('hs-total');
+        const todayEl = $('hs-today');
+        const streakEl = $('hs-streak');
+        if (totalEl) totalEl.textContent = total.total;
+        if (todayEl) todayEl.textContent = today ? today.total : 0;
+        if (streakEl) streakEl.textContent = total.days;
+    }
+
+    // 今日统计（旧首页）
     const dayStatsEl = $('home-day-stats');
-    const today = Stats.getToday();
+    const todayStats = Stats.getToday();
     const totalAll = Stats.getTotal();
-    if (today) {
-        const rate = today.total > 0 ? Math.round(today.correct / today.total * 100) : 0;
+    if (todayStats) {
+        const rate = todayStats.total > 0 ? Math.round(todayStats.correct / todayStats.total * 100) : 0;
         dayStatsEl.innerHTML = `
-            <div class="day-item"><div class="day-num">${today.total}</div><div class="day-label">今日答题</div></div>
+            <div class="day-item"><div class="day-num">${todayStats.total}</div><div class="day-label">今日答题</div></div>
             <div class="day-item"><div class="day-num" style="color:var(--success)">${rate}%</div><div class="day-label">今日正确率</div></div>
             <div class="day-item"><div class="day-num">${totalAll.total}</div><div class="day-label">累计答题</div></div>
         `;
