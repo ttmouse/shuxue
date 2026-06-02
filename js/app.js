@@ -517,7 +517,7 @@ function submitAnswer() {
     const isCorrect = compareAnswers(userAnswer, correctAnswer);
 
     // 禁用键盘
-    const kp = $('prac-keypad');
+    const kp = $('c-keys');
     if (kp) kp.style.pointerEvents = 'none';
 
     // 防冲撞：当前回车已经用于提交，屏蔽键盘翻题 200ms
@@ -610,7 +610,7 @@ function showFeedback(result, q, userAnswer) {
     const detail = $('c-fb-bd');
 
     // 隐藏键盘，用反馈替换其位置
-    const kp = $('prac-keypad');
+    const kp = $('c-keys');
     if (kp) kp.style.display = 'none';
 
     area.className = 'c-fb show ' + result;
@@ -727,8 +727,10 @@ function nextQuestion() {
     state.currentIndex++;
 
     // 恢复键盘
-    const kp = $('prac-keypad');
+    const kp = $('c-keys');
     if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
+    const hintRow = document.querySelector('.prac-hint-row');
+    if (hintRow) hintRow.style.display = '';
     const fb = $('c-fb');
     if (fb) fb.style.display = 'none';
 
@@ -764,7 +766,7 @@ function showPracticeResult() {
     console.log('showPracticeResult', {total, correct, wrong, rate, elapsed, questionsLen: state.questions.length, currentIndex: state.currentIndex});
 
     // 隐藏 play 区
-    const keys = $('prac-keypad');
+    const keys = $('c-keys');
     if (keys) keys.style.display = 'none';
     const fb = $('c-fb');
     if (fb) fb.style.display = 'none';
@@ -772,6 +774,8 @@ function showPracticeResult() {
     if (core) core.style.display = 'none';
     const progressBar = document.querySelector('.c-play-progress');
     if (progressBar) progressBar.style.display = 'none';
+    const hintRow = document.querySelector('.prac-hint-row');
+    if (hintRow) hintRow.style.display = 'none';
 
     // 根据正确率给出不同反馈
     let iconEmoji, title;
