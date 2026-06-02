@@ -194,20 +194,22 @@ function generateSteps(q) {
     try {
         let expr = text;
         const allSteps = [];
-        // 逐层处理最内层括号
-        while (/\([^()]+\)/.test(expr)) {
-            const innerMatch = expr.match(/\(([^()]+)\)/);
+        // 逐层处理最内层括号（支持 () 和 []）
+        const bracketRe = /[\(\[][^\(\)\[\]]+[\)\]]/;
+        while (bracketRe.test(expr)) {
+            const innerMatch = expr.match(bracketRe);
             if (!innerMatch) break;
-            const innerVal = computeLinear(innerMatch[1]);
+            const inner = innerMatch[0].slice(1, -1); // 去掉括号
+            const innerVal = computeLinear(inner);
             if (innerVal === null) break;
             const fmt = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
-            const innerTokens = innerMatch[1].match(/-?\d+\.?\d*|[+\−×÷]/g);
+            const innerTokens = inner.match(/-?\d+\.?\d*|[+\−×÷]/g);
             const innerSteps = generateStepsFromTokens(innerTokens);
             if (innerSteps && innerSteps.length > 0) {
                 allSteps.push(...innerSteps);
             }
-            // 用计算值替换括号部分
-            expr = expr.replace(/\([^()]+\)/, fmt(innerVal));
+            // 用计算值替换括号/方括号部分
+            expr = expr.replace(bracketRe, fmt(innerVal));
         }
         // 剩余无括号表达式
         const tokens = expr.match(/-?\d+\.?\d*|[+\−×÷]/g);
