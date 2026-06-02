@@ -84,6 +84,93 @@ function highlightOperators(text) {
   return text.replace(/([+\−×÷])/g, '<span class="q-op">$1</span>');
 }
 
+/** 根据题型和表达式生成解题步骤 */
+function generateSteps(q) {
+    if (q.steps && Array.isArray(q.steps) && q.steps.length > 0) return q.steps;
+    if (q.tip) return null; // 有 tip 没 steps，不生成
+
+    const text = q.question.replace(' = ?', '').replace('=?', '');
+    const type = q.type || '';
+
+    // 加法交换律: a + b + c → (a + c) + b
+    if (type === 'law-add-comm') {
+        const parts = text.split('+').map(s => s.trim());
+        if (parts.length === 3) {
+            const [a, b, c] = parts.map(Number);
+            const s1 = a + parseInt(c);
+            return [`先交换顺序：${a} + ${c} = ${s1}`, `再计算：${s1} + ${b} = ${a + b + c}`];
+        }
+    }
+
+    // 加法结合律: a + b + c → a + (b + c)
+    if (type === 'law-add-assoc') {
+        const parts = text.split('+').map(s => s.trim());
+        if (parts.length === 3) {
+            const [a, b, c] = parts.map(Number);
+            const s1 = b + c;
+            return [`先算括号内：${b} + ${c} = ${s1}`, `再计算：${a} + ${s1} = ${a + s1}`];
+        }
+    }
+
+    // 减法性质: a - b - c → a - (b + c)
+    if (type === 'law-sub-prop') {
+        const parts = text.split('-').map(s => s.trim());
+        if (parts.length === 3) {
+            const [a, b, c] = parts.map(Number);
+            return [`先把减数相加：${b} + ${c} = ${b + c}`, `再计算：${a} - ${b + c} = ${a - b - c}`];
+        }
+    }
+
+    // 乘法交换律: a × b × c → (a × c) × b
+    if (type === 'law-mul-comm') {
+        const parts = text.split('×').map(s => s.trim());
+        if (parts.length === 3) {
+            const [a, b, c] = parts.map(Number);
+            const s1 = a * c;
+            return [`先交换顺序：${a} × ${c} = ${s1}`, `再计算：${s1} × ${b} = ${s1 * b}`];
+        }
+    }
+
+    // 乘法分配律: 99×b → (100-1)×b
+    if (type === 'law-mul-dist') {
+        const parts = text.split('×').map(s => s.trim());
+        if (parts.length === 2) {
+            const a = parseInt(parts[0]), b = parseInt(parts[1]);
+            if (a === 99) return [`99 × ${b} = (100 − 1) × ${b}`, `= 100 × ${b} − 1 × ${b}`, `= ${100 * b} − ${b}`, `= ${a * b}`];
+            if (a === 101) return [`101 × ${b} = (100 + 1) × ${b}`, `= 100 × ${b} + 1 × ${b}`, `= ${100 * b} + ${b}`, `= ${a * b}`];
+            if (a === 98) return [`98 × ${b} = (100 − 2) × ${b}`, `= 100 × ${b} − 2 × ${b}`, `= ${100 * b} − ${2 * b}`, `= ${a * b}`];
+            if (a === 102) return [`102 × ${b} = (100 + 2) × ${b}`, `= 100 × ${b} + 2 × ${b}`, `= ${100 * b} + ${2 * b}`, `= ${a * b}`];
+            if (a === 999) return [`999 × ${b} = (1000 − 1) × ${b}`, `= 1000 × ${b} − 1 × ${b}`, `= ${1000 * b} − ${b}`, `= ${a * b}`];
+        }
+    }
+
+    // 除法性质: a ÷ b ÷ c → a ÷ (b × c)
+    if (type === 'law-div-prop') {
+        const parts = text.split('÷').map(s => s.trim());
+        if (parts.length === 3) {
+            const [a, b, c] = parts.map(s => parseInt(s));
+            return [`先把除数相乘：${b} × ${c} = ${b * c}`, `再计算：${a} ÷ ${b * c} = ${a / (b * c)}`];
+        }
+    }
+
+    // 通用: 简单加减乘除
+    try {
+        const match = text.match(/^(-?\d+)\s*([+\−×÷])\s*(-?\d+)$/);
+        if (match) {
+            const a = parseInt(match[1]), op = match[2], b = parseInt(match[3]);
+            if (op === '+') return [`${a} + ${b} = ${a + b}`];
+            if (op === '−') return [`${a} − ${b} = ${a - b}`];
+            if (op === '×') return [`${a} × ${b} = ${a * b}`];
+            if (op === '÷') {
+                if (b !== 0 && a % b === 0) return [`${a} ÷ ${b} = ${a / b}`];
+                return [`${a} ÷ ${b} = ${(a / b).toFixed(2)}`];
+            }
+        }
+    } catch(e) {}
+
+    return null;
+}
+
 // ============================================================
 // 设置页
 // ============================================================
@@ -479,16 +566,22 @@ function showHint(q) {
     const stepsEl = $('prac-hint-steps');
     const closeBtn = $('prac-hint-close');
 
+    // 生成步骤
+    const steps = generateSteps(q);
+
     let html = '';
 
-    if (q.tip) {
+    if (q.tip && !steps) {
         html += `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;padding:var(--s3);background:var(--n50);border-radius:var(--r-md);margin-bottom:var(--s3);">${q.tip}</div>`;
     }
 
-    if (q.steps && Array.isArray(q.steps) && q.steps.length > 0) {
+    if (steps && steps.length > 0) {
+        if (q.tip) {
+            html += `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;padding:var(--s3);background:var(--n50);border-radius:var(--r-md);margin-bottom:var(--s3);">${q.tip}</div>`;
+        }
         html += '<div style="display:flex;flex-direction:column;gap:var(--s2);">';
-        q.steps.forEach((step, i) => {
-            const isLast = i === q.steps.length - 1;
+        steps.forEach((step, i) => {
+            const isLast = i === steps.length - 1;
             const color = isLast ? 'var(--primary)' : 'var(--text)';
             const bg = isLast ? '#F0FDE7' : 'var(--surface)';
             html += `<div style="display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);background:${bg};border-radius:var(--r-md);border:1px solid var(--n100);">
@@ -497,9 +590,7 @@ function showHint(q) {
             </div>`;
         });
         html += '</div>';
-    }
-
-    if (!q.tip && (!q.steps || !Array.isArray(q.steps) || q.steps.length === 0)) {
+    } else {
         html = '<div style="text-align:center;font-size:14px;color:var(--n300);padding:var(--s12) 0;">这道题没有分步提示</div>';
     }
 
