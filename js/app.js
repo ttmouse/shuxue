@@ -322,6 +322,7 @@ function submitAnswer() {
 
     if (isCorrect) {
         state.correctCount++;
+        console.log('submitAnswer CORRECT', {correctCount: state.correctCount, wrongCount: state.wrongCount, idx});
         const qt = $('c-question');
         if (qt) { qt.innerHTML = highlightOperators(q.question).replace('?', `<span class="c-play-ok">${userAnswer}</span> <span style="color:var(--primary);font-size:18px;"> ✓</span>`); }
         if (Framework.sound) Framework.sound.playCorrect();
@@ -333,6 +334,7 @@ function submitAnswer() {
 
     // 答错：标红 + 自动跳转
     state.wrongCount++;
+    console.log('submitAnswer WRONG', {correctCount: state.correctCount, wrongCount: state.wrongCount, idx});
     const qt = $('c-question');
     if (qt) { qt.innerHTML = highlightOperators(q.question).replace('?', `<span class="c-play-no">${userAnswer}</span>`); }
     if (Framework.sound) Framework.sound.playWrong();
@@ -507,6 +509,7 @@ function showPracticeResult() {
     const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
     const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
     const timeStr = elapsed < 60 ? `${elapsed} 秒` : `${Math.floor(elapsed / 60)} 分 ${elapsed % 60} 秒`;
+    console.log('showPracticeResult', {total, correct, wrong, rate, elapsed, questionsLen: state.questions.length, currentIndex: state.currentIndex});
 
     // 隐藏 play 区
     const keys = $('prac-keypad');
