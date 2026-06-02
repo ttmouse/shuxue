@@ -284,6 +284,12 @@ function renderQuestion() {
     // 重置输入
     pracResetInput();
 
+    // 绑定提示按钮
+    const hintBtn = $('prac-hint');
+    if (hintBtn) {
+        hintBtn.onclick = () => showHint(q);
+    }
+
     // 比大小题型显示比较符号键盘行
     const cmpRow = document.querySelector('.c-pr-cmp');
     if (cmpRow) {
@@ -466,6 +472,53 @@ function showFeedback(result, q, userAnswer) {
     // 下一题按钮文案
     const isLast = state.currentIndex >= state.questions.length - 1;
     $('c-fb-next').textContent = isLast ? '查看结果' : '下一题';
+}
+
+function showHint(q) {
+    const area = $('c-fb');
+    const icon = $('c-fb-icon');
+    const text = $('c-fb-title');
+    const detail = $('c-fb-bd');
+    const nextBtn = $('c-fb-next');
+
+    // 隐藏键盘，用反馈显示提示
+    const kp = $('prac-keypad');
+    if (kp) kp.style.display = 'none';
+    const hintRow = document.querySelector('.prac-hint-row');
+    if (hintRow) hintRow.style.display = 'none';
+
+    area.style.display = 'block';
+    area.className = 'c-fb show';
+    area.style.background = 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)';
+    area.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+
+    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>';
+    text.textContent = '解题提示';
+
+    if (q.tip) {
+        detail.innerHTML = `<div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">${q.tip}</div>`;
+    } else if (q.steps && Array.isArray(q.steps)) {
+        let stepHtml = '<div style="display:flex;flex-direction:column;gap:4px;">';
+        q.steps.forEach((step, i) => {
+            const color = i === q.steps.length - 1 ? 'var(--primary)' : 'var(--text-secondary)';
+            stepHtml += `<div style="font-size:14px;color:${color};padding:3px 0;font-weight:600;">步骤${i + 1}：${step}</div>`;
+        });
+        stepHtml += '</div>';
+        detail.innerHTML = stepHtml;
+    } else {
+        detail.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);">暂无提示</div>';
+    }
+
+    nextBtn.textContent = '关闭';
+    nextBtn.onclick = () => {
+        area.style.display = 'none';
+        area.style.background = '';
+        area.style.border = '';
+        if (kp) kp.style.display = '';
+        if (hintRow) hintRow.style.display = '';
+        nextBtn.textContent = '下一题';
+        nextBtn.onclick = nextQuestion;
+    };
 }
 
 function createNextBar() {
