@@ -84,6 +84,43 @@ function highlightOperators(text) {
   return text.replace(/([+\−×÷])/g, '<span class="q-op">$1</span>');
 }
 
+/** 计算无括号线性表达式 */
+function computeLinear(expr) {
+    const tokens = expr.match(/-?\d+\.?\d*|[+\−×÷]/g);
+    if (!tokens || tokens.length < 1) return null;
+    let val = parseFloat(tokens[0]);
+    for (let i = 1; i < tokens.length; i += 2) {
+        const op = tokens[i];
+        const num = parseFloat(tokens[i + 1]);
+        if (op === '+') val += num;
+        else if (op === '−') val -= num;
+        else if (op === '×') val *= num;
+        else if (op === '÷') val /= num;
+        else return null;
+    }
+    return val;
+}
+
+/** 从 tokens 生成逐步计算步骤 */
+function generateStepsFromTokens(tokens) {
+    if (!tokens || tokens.length < 3 || tokens.length % 2 === 0) return null;
+    const steps = [];
+    let current = parseFloat(tokens[0]);
+    const fmt = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
+    for (let i = 1; i < tokens.length; i += 2) {
+        const op = tokens[i];
+        const num = parseFloat(tokens[i + 1]);
+        let next;
+        if (op === '+') { next = current + num; steps.push(`${fmt(current)} + ${fmt(num)} = ${fmt(next)}`); }
+        else if (op === '−') { next = current - num; steps.push(`${fmt(current)} − ${fmt(num)} = ${fmt(next)}`); }
+        else if (op === '×') { next = current * num; steps.push(`${fmt(current)} × ${fmt(num)} = ${fmt(next)}`); }
+        else if (op === '÷') { next = current / num; steps.push(`${fmt(current)} ÷ ${fmt(num)} = ${fmt(next > 0 && next < 1 ? next : next)}`); }
+        else return null;
+        current = next;
+    }
+    return steps.length > 0 ? steps : null;
+}
+
 /** 根据题型和表达式生成解题步骤 */
 function generateSteps(q) {
     if (q.steps && Array.isArray(q.steps) && q.steps.length > 0) return q.steps;
@@ -153,30 +190,30 @@ function generateSteps(q) {
         }
     }
 
-    // 通用: 逐步计算多步表达式
+    // 通用: 解析括号逐步计算
     try {
-        // 解析表达式为 tokens: 数字和运算符交替，支持小数和整数
-        const tokens = text.match(/-?\d+\.?\d*|[+\−×÷]/g);
-        if (tokens && tokens.length >= 3 && tokens.length % 2 === 1) {
-            const steps = [];
-            let current = parseFloat(tokens[0]);
-            for (let i = 1; i < tokens.length; i += 2) {
-                const op = tokens[i];
-                const num = parseFloat(tokens[i + 1]);
-                let next;
-                const fmt = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
-                if (op === '+') { next = current + num; steps.push(`${fmt(current)} + ${fmt(num)} = ${fmt(next)}`); }
-                else if (op === '−') { next = current - num; steps.push(`${fmt(current)} − ${fmt(num)} = ${fmt(next)}`); }
-                else if (op === '×') { next = current * num; steps.push(`${fmt(current)} × ${fmt(num)} = ${fmt(next)}`); }
-                else if (op === '÷') {
-                    next = current / num;
-                    const nf = Number.isInteger(next) ? next : next.toFixed(2);
-                    steps.push(`${fmt(current)} ÷ ${fmt(num)} = ${nf}`);
-                }
-                current = next;
+        let expr = text;
+        const allSteps = [];
+        // 逐层处理最内层括号
+        while (/\([^()]+\)/.test(expr)) {
+            const innerMatch = expr.match(/\(([^()]+)\)/);
+            if (!innerMatch) break;
+            const innerVal = computeLinear(innerMatch[1]);
+            if (innerVal === null) break;
+            const fmt = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
+            const innerTokens = innerMatch[1].match(/-?\d+\.?\d*|[+\−×÷]/g);
+            const innerSteps = generateStepsFromTokens(innerTokens);
+            if (innerSteps && innerSteps.length > 0) {
+                allSteps.push(...innerSteps);
             }
-            if (steps.length > 0) return steps;
+            // 用计算值替换括号部分
+            expr = expr.replace(/\([^()]+\)/, fmt(innerVal));
         }
+        // 剩余无括号表达式
+        const tokens = expr.match(/-?\d+\.?\d*|[+\−×÷]/g);
+        const remainingSteps = generateStepsFromTokens(tokens);
+        if (remainingSteps) allSteps.push(...remainingSteps);
+        if (allSteps.length > 0) return allSteps;
     } catch(e) {}
 
     return null;
