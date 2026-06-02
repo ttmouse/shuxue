@@ -727,7 +727,7 @@ function submitRetryAnswer() {
     const isCorrect = compareAnswers(userAnswer, q.correctAnswer);
 
     // 禁用键盘
-    const kp = $('c-keys');
+    const kp = $('retry-keys');
     if (kp) kp.style.pointerEvents = 'none';
 
     justSubmitted = true;
@@ -754,7 +754,7 @@ function showRetryFeedback(result, q, userAnswer) {
     const detail = $('retry-fb-detail');
 
     // 隐藏键盘
-    const kp = $('c-keys');
+    const kp = $('retry-keys');
     if (kp) kp.style.display = 'none';
 
     area.className = 'c-fb show ' + result;
@@ -780,7 +780,7 @@ function nextRetryQuestion() {
     state.retryIndex++;
 
     // 恢复键盘
-    const kp = $('c-keys');
+    const kp = $('retry-keys');
     if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
 
     if (state.retryIndex >= state.retryQuestions.length) {
