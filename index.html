@@ -328,6 +328,27 @@
       <div class="c-fb-bd" id="retry-fb-detail"></div>
       <button class="c-fb-next" id="retry-fb-next">下一题</button>
     </div>
+
+    <div class="c-result" id="retry-result" style="display:none">
+      <div class="c-result-icon" id="retry-result-icon">🏆</div>
+      <div class="c-result-title" id="retry-result-title">完成！</div>
+      <div class="c-result-ring" id="retry-result-ring">
+        <svg viewBox="0 0 36 36">
+          <circle class="c-result-ring-bg" cx="18" cy="18" r="15.9"/>
+          <circle class="c-result-ring-fill" cx="18" cy="18" r="15.9"
+            stroke-dasharray="100" stroke-dashoffset="100" id="retry-ring-fill"/>
+        </svg>
+        <div class="c-result-ring-text">
+          <div class="c-result-ring-pct" id="retry-ring-pct">0%</div>
+          <div class="c-result-ring-label">正确率</div>
+        </div>
+      </div>
+      <div class="c-result-stats" id="retry-result-stats"></div>
+      <div class="c-result-actions">
+        <button class="c-result-btn c-result-btn-primary" id="retry-restart" onclick="retryWrongQuestions()">再练一轮</button>
+        <button class="c-result-btn c-result-btn-ghost" id="retry-back-wb" onclick="showPage('page-wrongbook')">返回错题本</button>
+      </div>
+    </div>
   </div>
 </div>
 

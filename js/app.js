@@ -757,11 +757,38 @@ function nextRetryQuestion() {
     if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
 
     if (state.retryIndex >= state.retryQuestions.length) {
-        // 重练结束
-        alert(`错题重练完成！\n正确：${state.retryCorrectCount} 题\n仍需努力：${state.retryWrongCount} 题`);
-        renderWrongBook();
-        showPage('page-wrongbook');
-        updateHomeStats();
+        // 显示重练结果
+        const total = state.retryQuestions.length;
+        const correct = state.retryCorrectCount;
+        const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+        // 隐藏 play 区
+        const keys = $('retry-keys');
+        if (keys) keys.style.display = 'none';
+        const core = document.querySelector('#retry-play .c-play-core');
+        if (core) core.style.display = 'none';
+        const progress = document.querySelector('#retry-play .c-play-progress');
+        if (progress) progress.style.display = 'none';
+
+        // 显示结果
+        $('retry-result-icon').textContent = rate === 100 ? '🏆' : rate >= 80 ? '🌟' : '💪';
+        $('retry-result-title').textContent = rate === 100 ? '全部答对！' : `正确率 ${rate}%`;
+        $('retry-result').style.display = 'flex';
+
+        // 环形进度
+        const ringFill = $('retry-ring-fill');
+        const ringPct = $('retry-ring-pct');
+        const circumference = 2 * Math.PI * 15.9;
+        if (ringFill) {
+            ringFill.style.strokeDasharray = circumference;
+            ringFill.style.strokeDashoffset = circumference - (rate / 100) * circumference;
+        }
+        if (ringPct) ringPct.textContent = rate + '%';
+
+        $('retry-result-stats').innerHTML = `
+            <div class="c-rs-row correct-row"><span>正确</span><span>${correct}/${total}</span></div>
+            <div class="c-rs-row"><span>还需练习</span><span>${total - correct}</span></div>
+        `;
         return;
     }
 
