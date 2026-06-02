@@ -925,16 +925,15 @@ let pracInput = '';
 
 function pracKeypadInit() {
   const keypad = $('prac-keypad');
-  const retryKeypad = $('c-keys');
+  const retryKeypad = $('retry-keys');
   const display = $('c-input-text');
 
   function onKeypadClick(e) {
     const btn = e.target.closest('button');
     if (!btn) return;
-    if (btn.id === 'prac-submit' || btn.id === 'c-submit') {
-      if (document.querySelector('#page-retry.active')) {
-        submitRetryAnswer();
-      } else {
+    if (btn.id === 'c-submit') {
+      // 重练模式通过 onclick 处理
+      if (!document.querySelector('#page-retry.active')) {
         submitAnswer();
       }
       return;
