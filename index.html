@@ -28,6 +28,12 @@
   <div class="home-footer">
     <span class="footer-text">每天 5 分钟，让思维更灵活</span>
   </div>
+
+  <div class="home-wb-bar" id="home-wb-bar" onclick="showGlobalWrongBook()">
+    <i data-lucide="book-open" style="width:18px;height:18px;color:var(--text-secondary)"></i>
+    <span>查看错题本</span>
+    <span class="home-wb-count" id="home-wb-count">0</span>
+  </div>
 </div>
 
 <!-- ============================================================
@@ -78,14 +84,15 @@
     <button class="old-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
     <span class="old-top-title">练习设置</span>
     <select class="grade-select" id="grade-select" onchange="switchGrade(this.value)">
-      <option value="1~2年级">1~2年级</option>
-      <option value="3~4年级" selected>3~4年级</option>
-      <option value="5~6年级">5~6年级</option>
+      <option value="1年级">1年级</option>
+      <option value="2年级">2年级</option>
+      <option value="3年级" selected>3年级</option>
+      <option value="4年级">4年级</option>
+      <option value="5年级">5年级</option>
+      <option value="6年级">6年级</option>
     </select>
   </div>
-  <div class="settings-container">
-    <div id="topic-select"></div>
-  </div>
+  <div id="topic-select"></div>
 </div>
 
 <!-- 答题页 -->
@@ -194,7 +201,7 @@
 <div id="page-wrongbook" class="page page-old">
   <div class="old-top-bar">
     <button class="old-back-btn" onclick="Framework.goHome()"><i data-lucide="arrow-left"></i></button>
-    <span class="old-top-title">传统口算</span>
+    <span class="old-top-title">错题本</span>
     <div style="width:44px;"></div>
   </div>
   <div class="wrongbook-container">
@@ -212,6 +219,7 @@
       <button class="filter-btn" data-filter="fraction">分数</button>
       <button class="filter-btn" data-filter="percent">百分数</button>
       <button class="filter-btn" data-filter="unit-convert">单位换算</button>
+      <button class="filter-btn" data-filter="clever">运算定律巧算</button>
     </div>
     <div class="wrongbook-stats" id="wrongbook-stats"></div>
     <div class="wrongbook-list" id="wrongbook-list"><p class="empty-msg">暂无错题，继续加油！</p></div>
@@ -327,6 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof updateHomeStats === 'function') {
     updateHomeStats();
   }
+  // 错题本计数
+  if (typeof updateWbBadge === 'function') updateWbBadge();
 });
 </script>
 </body>

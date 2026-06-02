@@ -47,13 +47,17 @@ Framework.register({
       lightbulb: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
       'chevron-left': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
       trophy: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+      'plus-minus': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="19" x2="19" y2="19"/></svg>`,
+      divide: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>`,
+      braces: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1"/><path d="M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"/></svg>`,
+      sigma: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 7V4H6l6 8-6 8h12v-3"/></svg>`,
     };
 
     // ============================================================
     // 分类定义
     // ============================================================
     const CATS = [
-      { id: 'all',       label: '综合训练',    desc: '随机混合所有题型',              icon: 'zap',      color: '#58CC02' },
+      { id: 'all',       label: '综合训练',    desc: '随机混合所有巧算题型',              icon: 'zap',      color: '#58CC02' },
       { id: 'split',     label: '拆分巧算',    desc: '99×a、101×a、98×a… 拆成整百运算', icon: 'scissors', color: '#1cb0f6' },
       { id: 'multiple',  label: '倍数巧算',    desc: '25×a、125×a 转换为乘除组合',      icon: 'hash',    color: '#c054f7' },
       { id: 'eleven',    label: '×11 巧算',   desc: '两位数×11：两头一拉中间相加',    icon: 'grid',     color: '#ff9600' },
@@ -240,6 +244,56 @@ Framework.register({
           return r ? { question: r.q + ' = ?', answer: r.a, breakdown: r.bd, lawName: r.ln, category: 'rounding' } : this.generate(diff);
         }
       },
+
+      // ---- 4-6年级通用题型（包装 QuestionGenerator）----
+      'add-sub': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['add-sub'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'add-sub' };
+      }},
+      'multiplication': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['multiplication'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'multiplication' };
+      }},
+      'division': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['division'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'division' };
+      }},
+      'mixed': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['mixed'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'mixed' };
+      }},
+      'decimal': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['decimal'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'decimal' };
+      }},
+      'fraction': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['fraction'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'fraction' };
+      }},
+      'double-paren': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['mixed'], 1, 'hard');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'double-paren' };
+      }},
+      'decimal-mul': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['decimal-mul'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'decimal-mul' };
+      }},
+      'decimal-div': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['decimal-div'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'decimal-div' };
+      }},
+      'fraction-hard': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['fraction-hard'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'fraction-hard' };
+      }},
+      'percent': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['percent'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'percent' };
+      }},
+      'unit-convert': { generate(diff) {
+        const r = QuestionGenerator.generateSet(['unit-convert'], 1, diff || 'easy');
+        const q = r.questions[0]; return { question: q.question, answer: q.answer, category: 'unit-convert' };
+      }},
     };
 
     // ============================================================
@@ -247,27 +301,28 @@ Framework.register({
     // ============================================================
 
     function renderSelect() {
+      const html = CATS.map((c, i) => `
+          <div class="c-sel-card ${state.selectedCat === c.id ? 'active' : ''}"
+               data-cat="${c.id}"
+               style="--card-color:${c.color}; animation-delay:${i * 0.06}s">
+            <div class="c-sel-card-icon" style="background:${c.color}">
+              ${ICONS[c.icon] || ICONS.zap}
+            </div>
+            <div class="c-sel-card-body">
+              <div class="c-sel-card-label">${c.label}</div>
+              <div class="c-sel-card-desc">${c.desc}</div>
+            </div>
+            <div class="c-sel-card-check">
+              ${state.selectedCat === c.id ? ICONS.check : ''}
+            </div>
+          </div>
+        `).join('');
+
       container.innerHTML = `
         <div class="c-sel">
           <div class="c-sel-grid">
-            ${CATS.map((c, i) => `
-              <div class="c-sel-card ${state.selectedCat === c.id ? 'active' : ''}"
-                   data-cat="${c.id}"
-                   style="--card-color:${c.color}; animation-delay:${i * 0.06}s">
-                <div class="c-sel-card-icon" style="background:${c.color}">
-                  ${ICONS[c.icon] || ICONS.zap}
-                </div>
-                <div class="c-sel-card-body">
-                  <div class="c-sel-card-label">${c.label}</div>
-                  <div class="c-sel-card-desc">${c.desc}</div>
-                </div>
-                <div class="c-sel-card-check">
-                  ${state.selectedCat === c.id ? ICONS.check : ''}
-                </div>
-              </div>
-            `).join('')}
+            ${html}
           </div>
-          <!-- 难度选择已移除，默认使用 easy -->
           <div class="c-sel-bottom">
 <button class="c-sel-start" id="c-start-btn">开始训练</button>
           </div>
@@ -322,10 +377,10 @@ Framework.register({
           </div>
 
           <div class="c-play-keys" id="c-keys">
-            <div class="c-pr"><button class="c-key" data-v="1">1</button><button class="c-key" data-v="2">2</button><button class="c-key" data-v="3">3</button><button class="c-key c-key-op" data-v="−">−</button></div>
-            <div class="c-pr"><button class="c-key" data-v="4">4</button><button class="c-key" data-v="5">5</button><button class="c-key" data-v="6">6</button><button class="c-key c-key-bk" data-v="bk">⌫</button></div>
-            <div class="c-pr"><button class="c-key" data-v="7">7</button><button class="c-key" data-v="8">8</button><button class="c-key" data-v="9">9</button><button class="c-key c-key-cl" data-v="cl">清空</button></div>
-            <div class="c-pr"><button class="c-key" data-v="0">0</button><button class="c-key" data-v="/">/</button><button class="c-key" data-v=".">.</button><button class="c-key c-key-go" id="c-submit">确定</button></div>
+            <div class="c-pr"><button class="c-key" data-v="7">7</button><button class="c-key" data-v="8">8</button><button class="c-key" data-v="9">9</button><button class="c-key c-key-bk" data-v="bk">⌫</button></div>
+            <div class="c-pr"><button class="c-key" data-v="4">4</button><button class="c-key" data-v="5">5</button><button class="c-key" data-v="6">6</button><button class="c-key c-key-op" data-v="−">−</button></div>
+            <div class="c-pr"><button class="c-key" data-v="1">1</button><button class="c-key" data-v="2">2</button><button class="c-key" data-v="3">3</button><button class="c-key c-key-cl" data-v="cl">清空</button></div>
+            <div class="c-pr"><button class="c-key" data-v=".">.</button><button class="c-key" data-v="0">0</button><button class="c-key" data-v="/">/</button><button class="c-key c-key-go" id="c-submit">确定</button></div>
           </div>
 
           <div class="c-fb" id="c-fb" style="display:none">
@@ -354,6 +409,7 @@ Framework.register({
             <div class="c-result-cats" id="c-result-cats"></div>
             <div class="c-result-actions">
               <button class="c-result-btn c-result-btn-primary" id="c-restart">再来一轮</button>
+              <button class="c-result-btn c-result-btn-ghost" id="c-view-wb">查看错题本</button>
               <button class="c-result-btn c-result-btn-ghost" id="c-back-sel">返回选择</button>
             </div>
           </div>
@@ -460,11 +516,20 @@ Framework.register({
         } else {
           state.streakCount = 0;
           if (Framework.sound) Framework.sound.playWrong();
+          if (typeof WrongBook !== 'undefined') {
+            WrongBook.add({
+              question: q.question,
+              correctAnswer: q.answer,
+              userAnswer: ans,
+              type: 'clever-' + q.category,
+              typeLabel: CATS.find(c => c.id === q.category)?.label || q.category,
+            });
+          }
         }
         // 答对答错都快速反馈，不展示拆解过程
         qEl.innerHTML = isCorrect
           ? q.question.replace('?', `<span class="c-play-ok">${q.answer}</span>`)
-          : q.question.replace('?', `<span class="c-play-no">${ans}</span> <span class="c-play-true">${q.answer}</span>`);
+          : q.question.replace('?', `<span class="c-play-no">${ans}</span>`);
         fbTimer = setTimeout(() => advanceQuestion(), 600);
       }
       submit.addEventListener('click', submitAnswer);
@@ -482,6 +547,11 @@ Framework.register({
         renderQuestion();
       }
       fbNext.addEventListener('click', advanceQuestion);
+
+      // --- 查看错题本 ---
+      container.querySelector('#c-view-wb')?.addEventListener('click', () => {
+        if (typeof showGlobalWrongBook === 'function') showGlobalWrongBook();
+      });
 
       // --- 返回（结果页→选择页） ---
       container.querySelector('#c-back-sel')?.addEventListener('click', () => {
@@ -514,6 +584,10 @@ Framework.register({
       function showResults() {
         keys.style.display = 'none';
         fb.style.display = 'none';
+        inputWrap.style.display = 'none';
+        qEl.style.display = 'none';
+        lawEl.style.display = 'none';
+        document.getElementById('c-progress-bar').style.display = 'none';
         resultScreen.style.display = 'flex';
         const total = state.totalCount, correct = state.correctCount;
         const rate = total > 0 ? Math.round(correct / total * 100) : 0;

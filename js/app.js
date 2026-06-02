@@ -85,10 +85,11 @@ function $(id) { return document.getElementById(id); }
 // ============================================================
 
 // 渲染知识点选择界面
-let selectedGrade = '3~4年级';
+let selectedGrade = localStorage.getItem('practice_grade') || '3年级';
 
 function switchGrade(grade) {
     selectedGrade = grade;
+    localStorage.setItem('practice_grade', grade);
     renderTopicSelect();
 }
 
@@ -105,40 +106,83 @@ function renderTopicSelect() {
     const current = grades.find(g => g.grade === selectedGrade);
     let html = '';
     if (current) {
-        html += '<div class="settings-card">';
-        html += '<div class="settings-card-header"><div class="settings-card-accent"></div><div class="settings-card-title">' + current.grade + '</div></div>';
-        const allTopics = [...current.topics, { id: '__mixed__', label: '综合练习', desc: '混合当前年级所有题型' }];
+        const allTopics = [...current.topics, { id: '__mixed__', label: current.grade + '总复习', desc: '混合当前年级所有题型', subtopics: [{ id: '__mixed__', label: '开始答题', desc: '随机所有题型' }] }];
 
         allTopics.forEach(t => {
-            const isOpen = expandedTopic === t.id;
-            const prefs = topicPrefs[t.id] || { count: 20 };
-            html += '<div class="topic-card' + (isOpen ? ' expanded' : '') + '" data-topic="' + t.id + '">';
-            html += '<div class="topic-item"><div class="topic-item-content"><div class="topic-label">' + t.label + '</div><div class="topic-desc">' + t.desc + '</div></div><div class="topic-arrow">›</div></div>';
-            if (isOpen) {
-                html += '<div class="topic-config">';
-                html += '<div class="expand-label">题目数量</div>';
-                html += '<div class="tc-row">';
-                [10, 20, 30, 60].forEach(n => {
-                    html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
-                });
-                html += '</div>';
-                html += '<div class="action-row">';
-                html += '<button class="tc-start">开始练习</button>';
-                html += '</div>';
-                html += '</div>';
-            }
+            const hasSubs = t.subtopics && t.subtopics.length > 0;
+            const prefs = topicPrefs[expandedTopic] || { count: 20 };
+
+
+
+            html += '<div class="topic-card">';
+            html += '<div class="topic-item"><div class="topic-item-content"><div class="topic-label">' + t.label + '</div></div></div>';
+            if (hasSubs) {
+                    html += '<div class="topic-subs">';
+                    t.subtopics.forEach(sub => {
+                        const isSel = expandedTopic === sub.id;
+                        html += '<div class="topic-sub' + (isSel ? ' expanded' : '') + '" data-sub="' + sub.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + sub.label + '</div><div class="topic-sub-desc">' + sub.desc + '</div></div><span class="topic-sub-arrow">›</span></div>';
+                        if (isSel) {
+                            html += '<div class="topic-config">';
+                            html += '<div class="expand-label">题目数量</div>';
+                            html += '<div class="tc-row">';
+                            [10, 20, 30, 60].forEach(n => {
+                                html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
+                            });
+                            html += '</div>';
+                            html += '<div class="action-row">';
+                            html += '<button class="tc-start">开始练习</button>';
+                            html += '</div>';
+                            html += '</div>';
+                        }
+                    });
+                    if (t.id !== '__mixed__') {
+                    const isMix = expandedTopic === '__mix-' + t.id + '__';
+                    html += '<div class="topic-sub' + (isMix ? ' expanded' : '') + '" data-sub="__mix-' + t.id + '__"><div class="topic-sub-content"><div class="topic-sub-label">单元练习</div><div class="topic-sub-desc">混合全部</div></div><span class="topic-sub-arrow">›</span></div>';
+                    if (isMix) {
+                        html += '<div class="topic-config">';
+                        html += '<div class="expand-label">题目数量</div>';
+                        html += '<div class="tc-row">';
+                        [10, 20, 30, 60].forEach(n => {
+                            html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
+                        });
+                        html += '</div>';
+                        html += '<div class="action-row">';
+                        html += '<button class="tc-start">开始练习</button>';
+                        html += '</div>';
+                        html += '</div>';
+                    }
+                    }
+                    html += '</div>'; // topic-subs
+                } else {
+                    const isSubOpen = expandedTopic === t.id;
+                    html += '<div class="topic-subs">';
+                    html += '<div class="topic-sub' + (isSubOpen ? ' expanded' : '') + '" data-sub="' + t.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + t.label + '</div><div class="topic-sub-desc">' + t.desc + '</div></div><span class="topic-sub-arrow">›</span></div>';
+                    if (isSubOpen) {
+                        html += '<div class="topic-config">';
+                        html += '<div class="expand-label">题目数量</div>';
+                        html += '<div class="tc-row">';
+                        [10, 20, 30, 60].forEach(n => {
+                            html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
+                        });
+                        html += '</div>';
+                        html += '<div class="action-row">';
+                        html += '<button class="tc-start">开始练习</button>';
+                        html += '</div>';
+                        html += '</div>';
+                    }
+                    html += '</div>';
+                }
             html += '</div>';
         });
-        html += '</div>'; // close settings-card
     }
 
     container.innerHTML = html;
 
-    // 点击卡片展开/折叠
-    container.querySelectorAll('.topic-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('.tc-count') || e.target.closest('.tc-start')) return;
-            const id = card.dataset.topic;
+    // 点击子维度展开/折叠
+    container.querySelectorAll('.topic-sub').forEach(sub => {
+        sub.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = sub.dataset.sub;
             expandedTopic = expandedTopic === id ? null : id;
             renderTopicSelect();
         });
@@ -160,9 +204,15 @@ function renderTopicSelect() {
             e.stopPropagation();
             const prefs = topicPrefs[expandedTopic] || { count: 20 };
             state.count = prefs.count;
-            state.topics = expandedTopic === '__mixed__'
-                ? Knowledge.getGradeTopicIds(selectedGrade)
-                : [expandedTopic];
+            if (expandedTopic && expandedTopic.startsWith('__mix-') && expandedTopic.endsWith('__')) {
+                const parentId = expandedTopic.replace('__mix-', '').replace('__', '');
+                state.topics = parentId ? Knowledge.getSubTopicIds(parentId) : [expandedTopic];
+            } else if (expandedTopic === '__mixed__') {
+                state.topics = Knowledge.getGradeTopicIds(selectedGrade)
+                    .map(t => Knowledge.getSubTopicIds(t).length ? Knowledge.getSubTopicIds(t) : [t]).flat();
+            } else {
+                state.topics = [expandedTopic];
+            }
             startPractice();
         });
     });

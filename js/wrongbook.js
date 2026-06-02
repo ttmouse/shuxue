@@ -73,14 +73,16 @@ const WrongBook = (() => {
 
     /** 题型大类 → 具体 type 映射 */
     const TYPE_GROUP = {
-        'add-sub':     ['add-sub', 'add-easy'],
-        'multiplication': ['multiplication', 'multi-table', 'multi-11', 'multi-25', 'multi-hard'],
-        'division':    ['division', 'div-table'],
-        'mixed':       ['mixed', 'double-paren'],
-        'decimal':     ['decimal', 'decimal-addsub', 'decimal-mul', 'decimal-div'],
-        'fraction':    ['fraction', 'fraction-addsub', 'fraction-hard'],
-        'percent':     ['percent'],
-        'unit-convert': ['unit-convert'],
+        'add-sub':     ['add-sub', 'add-easy', 'add-sub-easy', 'add-sub-carry', 'add-sub-mix'],
+        'multiplication': ['multiplication', 'multi-table', 'multi-11', 'multi-25', 'multi-hard', 'mul-basic', 'mul-carry', 'mul-ten', 'mul-3digit'],
+        'division':    ['division', 'div-table', 'div-basic', 'div-ten', 'div-2digit'],
+        'mixed':       ['mixed', 'double-paren', 'mixed-basic', 'mixed-paren', 'dp-basic', 'dp-hard', 'calc-no-paren', 'calc-small-paren', 'calc-mid-paren'],
+        'law':         ['law-add-comm', 'law-add-assoc', 'law-sub-prop', 'law-mul-comm', 'law-mul-dist', 'law-div-prop'],
+        'decimal':     ['decimal', 'decimal-addsub', 'decimal-mul', 'decimal-div', 'dec-addsub-easy', 'dec-addsub-hard', 'dec-addsub-mix', 'dec-addsub-law', 'dec-mul-int', 'dec-mul-ten', 'dec-mul-dec', 'dec-div-int', 'dec-div-ten', 'dec-compare', 'dec-point-move'],
+        'fraction':    ['fraction', 'fraction-addsub', 'fraction-hard', 'frac-add', 'frac-sub', 'frac-mix', 'frac-hard-add', 'frac-hard-sub'],
+        'percent':     ['percent', 'pct-of', 'pct-frac'],
+        'unit-convert': ['unit-convert', 'uc-length', 'uc-weight', 'uc-time', 'uc-money'],
+        'clever':      ['clever-split', 'clever-multiple', 'clever-eleven', 'clever-distribute', 'clever-factor', 'clever-rounding'],
     };
 
     /** 按题型筛选（支持大类匹配） */
