@@ -121,6 +121,65 @@ function generateStepsFromTokens(tokens) {
     return steps.length > 0 ? steps : null;
 }
 
+/** 指标解释映射 */
+const METRIC_DEFS = {
+    '正确数': { desc: '本轮练习中答对的题目数量', calc: '答对数 / 总题数 × 100% = 正确率' },
+    '错误数': { desc: '本轮练习中答错的题目数量', calc: '总题数 − 正确数' },
+    '用时': { desc: '完成本轮练习所花费的总时间', calc: '开始时间 → 结束时间' },
+    '总题数': { desc: '累计完成的练习题目总量', calc: '所有练习轮次的题目数之和' },
+    '今日': { desc: '今天完成的练习题目数量', calc: '当日 0:00 至现在的累计答题数' },
+    '连续天数': { desc: '连续有练习记录的天数', calc: '从最近一次练习日往前数，不间断的天数' },
+    '正确率': { desc: '答对题目占全部题目的比例', calc: '正确数 ÷ 总题数 × 100%' },
+    '知识点掌握度': { desc: '各知识点在所有练习中的累计正确率', calc: '该知识点的累计正确数 ÷ 该知识点的累计总题数 × 100%' },
+    '加法交换律': { desc: 'a + b = b + a，交换加数位置和不变', calc: '练习中加法交换律题目的累计正确率' },
+    '加法结合律': { desc: '(a + b) + c = a + (b + c)，改变加法结合顺序', calc: '练习中加法结合律题目的累计正确率' },
+    '减法性质': { desc: 'a − b − c = a − (b + c)，连续减去两个数', calc: '练习中减法性质题目的累计正确率' },
+    '乘法交换律': { desc: 'a × b × c = a × c × b，交换因数积不变', calc: '练习中乘法交换律题目的累计正确率' },
+    '乘法分配律': { desc: '(a ± b) × c = a × c ± b × c', calc: '练习中乘法分配律题目的累计正确率' },
+    '除法性质': { desc: 'a ÷ b ÷ c = a ÷ (b × c)，连续除以两个数', calc: '练习中除法性质题目的累计正确率' },
+    '拆分巧算': { desc: '将接近整数的数拆分后计算，如 99 = 100 − 1', calc: '练习中拆分巧算题目的累计正确率' },
+    '倍数巧算': { desc: '利用 25×4=100、125×8=1000 等技巧', calc: '练习中倍数巧算题目的累计正确率' },
+    '×11 巧算': { desc: '两位数×11：两头一拉，中间相加', calc: '练习中×11巧算题目的累计正确率' },
+    '分配律正用': { desc: '(a ± b) × c = a × c ± b × c', calc: '练习中分配律正用题目的累计正确率' },
+    '分配律逆用': { desc: 'a × c ± b × c = (a ± b) × c，提取公因数', calc: '练习中分配律逆用题目的累计正确率' },
+    '凑整巧算': { desc: '先凑成整十/整百数再计算', calc: '练习中凑整巧算题目的累计正确率' },
+};
+
+/** 显示指标解释弹窗 */
+function showMetricInfo(label) {
+    const def = METRIC_DEFS[label];
+    if (!def) return;
+    const overlay = $('analytics-overlay');
+    const content = $('analytics-content');
+    const closeBtn = $('analytics-close');
+    if (!overlay || !content) return;
+    content.innerHTML = `
+        <div style="padding:var(--s2) 0;">
+            <div style="font-size:18px;font-weight:800;color:var(--n700);margin-bottom:var(--s4);">${label}</div>
+            <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:var(--s3);">${def.desc}</div>
+            <div style="font-size:12px;color:var(--n300);font-weight:600;margin-bottom:var(--s1);">统计口径</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;padding:var(--s2) var(--s3);background:var(--n50);border-radius:var(--r-md);">${def.calc}</div>
+        </div>
+    `;
+    overlay.style.display = 'flex';
+    closeBtn.onclick = () => { overlay.style.display = 'none'; };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.style.display = 'none'; };
+}
+
+/** 给指标标签添加点击解释 */
+function makeMetricClickable(container, label) {
+    if (!container) return;
+    const def = METRIC_DEFS[label];
+    if (!def) return;
+    container.style.cursor = 'pointer';
+    container.style.borderBottom = '1px dashed var(--n250)';
+    container.title = '点击查看指标说明';
+    container.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showMetricInfo(label);
+    });
+}
+
 /** 根据题型和表达式生成解题步骤 */
 function generateSteps(q) {
     if (q.steps && Array.isArray(q.steps) && q.steps.length > 0) return q.steps;
@@ -1027,7 +1086,8 @@ function showAnalytics() {
             entries.forEach(([type, s]) => {
                 const pct = Math.round(s.correct / s.total * 100);
                 const color = pct >= 80 ? 'var(--primary)' : pct >= 60 ? 'var(--orange)' : 'var(--red)';
-                html += `<div class="ht-row"><span class="ht-label">${s.label}</span><div class="ht-bar"><div class="ht-fill" style="width:${pct}%;background:${color}"></div></div><span class="ht-num">${pct}%</span></div>`;
+                const escapedLabel = s.label.replace(/'/g, "\\'");
+                html += `<div class="ht-row"><span class="ht-label" onclick="showMetricInfo('${escapedLabel}')" style="cursor:pointer;border-bottom:1px dashed var(--n250);" title="点击查看指标说明">${s.label}</span><div class="ht-bar"><div class="ht-fill" style="width:${pct}%;background:${color}"></div></div><span class="ht-num">${pct}%</span></div>`;
             });
         } else {
             html = '<div style="text-align:center;padding:var(--s12) 0;font-size:14px;color:var(--n300);">暂无数据<br><span style="font-size:12px;">完成练习后自动记录</span></div>';
@@ -1063,9 +1123,9 @@ function updateHomeStats() {
         const totalEl = $('hs-total');
         const todayEl = $('hs-today');
         const streakEl = $('hs-streak');
-        if (totalEl) totalEl.textContent = total.total;
-        if (todayEl) todayEl.textContent = today ? today.total : 0;
-        if (streakEl) streakEl.textContent = total.days;
+        if (totalEl) { totalEl.textContent = total.total; if (totalEl.parentNode) makeMetricClickable(totalEl.parentNode, '总题数'); }
+        if (todayEl) { todayEl.textContent = today ? today.total : 0; if (todayEl.parentNode) makeMetricClickable(todayEl.parentNode, '今日'); }
+        if (streakEl) { streakEl.textContent = total.days; if (streakEl.parentNode) makeMetricClickable(streakEl.parentNode, '连续天数'); }
     }
 
 
