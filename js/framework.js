@@ -45,13 +45,14 @@ const Framework = (() => {
         location.hash = modeId === 'home' ? '#/' : '#/' + modeId;
       }
 
-      // 特殊处理：旧版口算模式
+      // 特殊处理：旧版口算模式（直接进设置页，跳过首页）
       if (modeId === 'practice') {
         homeView.style.display = 'none';
         modeView.style.display = 'none';
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('page-home').classList.add('active');
+        document.getElementById('page-settings').classList.add('active');
         currentMode = 'practice';
+        if (typeof renderTopicSelect === 'function') renderTopicSelect();
         return;
       }
       // 其他模式恢复内容区展示
@@ -153,9 +154,12 @@ const Framework = (() => {
         'practice/wrongbook': 'page-wrongbook',
         'practice/retry': 'page-retry',
       };
-      const sub = subMap[hash];
+      const sub = subMap[hash] || (hash === 'practice' ? 'page-settings' : null);
       if (sub && typeof showPage === 'function') {
-        setTimeout(() => showPage(sub), 0);
+        setTimeout(() => {
+          showPage(sub);
+          if (sub === 'page-settings' && typeof renderTopicSelect === 'function') renderTopicSelect();
+        }, 0);
       }
     }
     handlingHash = false;
