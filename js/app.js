@@ -506,7 +506,8 @@ function showHint(q) {
         stepHtml += '</div>';
         detail.innerHTML = stepHtml;
     } else {
-        detail.innerHTML = '<div style="font-size:13px;color:var(--text-tertiary);">暂无提示</div>';
+        const ans = q.answer || '?';
+        detail.innerHTML = `<div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">正确答案：<span style="color:var(--primary);font-weight:700;font-size:18px;">${escapeHtml(ans)}</span></div>`;
     }
 
     nextBtn.textContent = '关闭';
