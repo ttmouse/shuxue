@@ -279,6 +279,22 @@ body {
   letter-spacing: 0.03em;
 }
 
+/* Topic analysis section */
+.home-topic-section { width: 100%; margin-top: var(--s1); }
+.ht-header {
+  font-size: 11px; font-weight: 700; color: var(--n300);
+  letter-spacing: 0.04em; margin-bottom: var(--s2);
+}
+.ht-row {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: var(--s1) 0; font-size: 12px;
+}
+.ht-label { width: 70px; font-weight: 600; color: var(--n500); flex-shrink: 0; }
+.ht-bar { flex: 1; height: 6px; background: var(--n100); border-radius: 3px; overflow: hidden; }
+.ht-fill { height: 100%; border-radius: 3px; transition: width 0.6s var(--ease-spring); }
+.ht-num { width: 36px; text-align: right; font-weight: 700; color: var(--n400); font-size: 11px; }
+.ht-empty { font-size: 11px; color: var(--n300); padding: var(--s1) 0; text-align: center; }
+
 /* Wrong book entry */
 .home-wb-bar {
   display: flex; align-items: center; gap: var(--s2); justify-content: center;
