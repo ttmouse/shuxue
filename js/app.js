@@ -59,7 +59,7 @@ function showPage(pageId) {
         'page-home': '#/practice',
         'page-settings': '#/practice/settings',
         'page-practice': '#/practice/play',
-        'page-result': '#/practice/result',
+        // 'page-result' — 已内联到答题页，不单独使用
         'page-wrongbook': '#/wrongbook',
         'page-retry': '#/practice/retry',
     };
@@ -588,10 +588,7 @@ function showPracticeResult() {
     const practicedTopics = state.questions.map(q => q.type);
     Stats.recordPractice(total, correct, practicedTopics, state.difficulty, state.topicStats);
 
-    // 更新 URL hash
-    if (typeof Framework !== 'undefined') {
-        location.hash = '#/practice/result';
-    }
+    // 移除#/practice/result hash切换，避免覆盖内联结果页
 
     if (typeof Sound !== 'undefined') Sound.playComplete();
     if (rate === 100) {

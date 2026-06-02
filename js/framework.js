@@ -150,7 +150,6 @@ const Framework = (() => {
       const subMap = {
         'practice/settings': 'page-settings',
         'practice/play': 'page-practice',
-        'practice/result': 'page-result',
         'practice/wrongbook': 'page-wrongbook',
         'practice/retry': 'page-retry',
       };
