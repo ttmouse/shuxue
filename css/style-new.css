@@ -2954,7 +2954,7 @@ button:disabled {
 /* 键盘 */
 .c-play-keys {
   width: 100%; display: flex; flex-direction: column; gap: 10px;
-  user-select: none; padding: var(--s3) 0 var(--s6);
+  user-select: none; padding: var(--s3) var(--s4) var(--s6);
 }
 .c-pr { display: flex; gap: 8px; }
 .c-key {
