@@ -681,8 +681,8 @@ function retryWrongQuestions() {
     const fbNext = $('retry-fb-next');
     if (fbNext) fbNext.onclick = nextRetryQuestion;
 
-    // 绑定提交按钮
-    const submitBtn = $('c-submit');
+    // 绑定提交按钮（retry页的c-submit是第二个，不能用$直接取）
+    const submitBtn = document.querySelector('#retry-keys #c-submit');
     if (submitBtn) submitBtn.onclick = submitRetryAnswer;
 }
 
