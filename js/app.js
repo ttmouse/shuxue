@@ -276,7 +276,7 @@ function renderQuestion() {
     $('c-question').innerHTML = highlightOperators(q.question);
 
     // 恢复确定键
-    const sb = $('c-submit');
+    const sb = $('prac-submit');
     if (sb) sb.textContent = '确定';
 
     // 重置输入
@@ -313,7 +313,7 @@ function submitAnswer() {
     const isCorrect = compareAnswers(userAnswer, correctAnswer);
 
     // 禁用键盘
-    const kp = $('c-keys');
+    const kp = $('prac-keypad');
     if (kp) kp.style.pointerEvents = 'none';
 
     // 防冲撞：当前回车已经用于提交，屏蔽键盘翻题 200ms
@@ -396,7 +396,7 @@ function showFeedback(result, q, userAnswer) {
     const detail = $('c-fb-bd');
 
     // 隐藏键盘，用反馈替换其位置
-    const kp = $('c-keys');
+    const kp = $('prac-keypad');
     if (kp) kp.style.display = 'none';
 
     area.className = 'c-fb show ' + result;
@@ -473,7 +473,7 @@ function nextQuestion() {
     state.currentIndex++;
 
     // 恢复键盘
-    const kp = $('c-keys');
+    const kp = $('prac-keypad');
     if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
     const fb = $('c-fb');
     if (fb) fb.style.display = 'none';
@@ -509,7 +509,7 @@ function showPracticeResult() {
     const timeStr = elapsed < 60 ? `${elapsed} 秒` : `${Math.floor(elapsed / 60)} 分 ${elapsed % 60} 秒`;
 
     // 隐藏 play 区
-    const keys = $('c-keys');
+    const keys = $('prac-keypad');
     if (keys) keys.style.display = 'none';
     const fb = $('c-fb');
     if (fb) fb.style.display = 'none';
@@ -924,14 +924,14 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 let pracInput = '';
 
 function pracKeypadInit() {
-  const keypad = $('c-keys');
-  if (!keypad) return;
+  const keypad = $('prac-keypad');
+  const retryKeypad = $('c-keys');
   const display = $('c-input-text');
 
-  keypad.addEventListener('click', (e) => {
+  function onKeypadClick(e) {
     const btn = e.target.closest('button');
     if (!btn) return;
-    if (btn.id === 'c-submit') {
+    if (btn.id === 'prac-submit' || btn.id === 'c-submit') {
       if (document.querySelector('#page-retry.active')) {
         submitRetryAnswer();
       } else {
@@ -952,7 +952,10 @@ function pracKeypadInit() {
     display.textContent = pracInput;
     $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
     if (Framework.sound) Framework.sound.playTap();
-  });
+  }
+
+  if (keypad) keypad.addEventListener('click', onKeypadClick);
+  if (retryKeypad) retryKeypad.addEventListener('click', onKeypadClick);
 
   document.addEventListener('keydown', (e) => {
     if (!document.querySelector('#page-practice.active, #page-retry.active')) return;
