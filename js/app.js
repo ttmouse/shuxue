@@ -501,7 +501,7 @@ function quitPractice() {
 // ============================================================
 
 function showPracticeResult() {
-    const total = state.questions.length;
+    const total = state.questions.length || state.currentIndex;
     const correct = state.correctCount;
     const wrong = state.wrongCount;
     const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
