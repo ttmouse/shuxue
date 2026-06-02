@@ -17,6 +17,7 @@ const state = {
     correctCount: 0,
     wrongCount: 0,
     startTime: null,
+    topicStats: {},     // { type: { label, correct, total } }
 
     // 错题重练
     retryQuestions: [],
@@ -252,6 +253,7 @@ function startPractice() {
     state.correctCount = 0;
     state.wrongCount = 0;
     state.startTime = Date.now();
+    state.topicStats = {};
 
     // 显示答题页
     showPage('page-practice');
@@ -320,8 +322,16 @@ function submitAnswer() {
     justSubmitted = true;
     setTimeout(() => { justSubmitted = false; }, 200);
 
+    // 记录题型统计
+    const typeKey = q.type || 'unknown';
+    if (!state.topicStats[typeKey]) {
+        state.topicStats[typeKey] = { label: q.typeLabel || typeKey, correct: 0, total: 0 };
+    }
+    state.topicStats[typeKey].total++;
+
     if (isCorrect) {
         state.correctCount++;
+        state.topicStats[typeKey].correct++;
         console.log('submitAnswer CORRECT', {correctCount: state.correctCount, wrongCount: state.wrongCount, idx});
         const qt = $('c-question');
         if (qt) { qt.innerHTML = highlightOperators(q.question).replace('?', `<span class="c-play-ok">${userAnswer}</span> <span style="color:var(--primary);font-size:18px;"> ✓</span>`); }
@@ -557,9 +567,26 @@ function showPracticeResult() {
         <div class="c-rs-row streak-row"><span>用时</span><span>${timeStr}</span></div>
     `;
 
-    // 记录每日统计
+    // 各知识点正确率
+    const catEntries = Object.entries(state.topicStats).filter(([_, s]) => s.total > 0);
+    if (catEntries.length > 1) {
+        const catHtml = '<div class="c-rc-title">知识点分析</div>' +
+            catEntries.map(([id, s]) => {
+                const pct = Math.round(s.correct / s.total * 100);
+                const barColor = pct >= 80 ? 'var(--primary)' : pct >= 60 ? 'var(--orange)' : 'var(--red)';
+                return `<div class="c-rc-row">
+                    <span>${s.label}</span>
+                    <div class="c-rc-bar"><div class="c-rc-fill" style="width:${pct}%;background:${barColor}"></div></div>
+                    <span>${s.correct}/${s.total}</span>
+                </div>`;
+            }).join('');
+        $('c-result-cats').innerHTML = catHtml;
+        $('c-result-cats').style.display = '';
+    }
+
+    // 记录每日统计（包含各知识点数据）
     const practicedTopics = state.questions.map(q => q.type);
-    Stats.recordPractice(total, correct, practicedTopics, state.difficulty);
+    Stats.recordPractice(total, correct, practicedTopics, state.difficulty, state.topicStats);
 
     // 更新 URL hash
     if (typeof Framework !== 'undefined') {
