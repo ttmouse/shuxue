@@ -673,37 +673,53 @@ const QuestionGenerator = (() => {
         // ---- 运算定律子维度 ----
         'law-add-comm': {
             generate: () => {
-                const a = rand(10, 99), b = rand(10, 99), c = rand(10, 99);
+                const target = pick([50, 100, 100, 100, 150, 200]);
+                const a = rand(Math.max(10, target - 89), Math.min(89, target - 10));
+                const c = target - a;
+                const b = rand(10, 89);
                 return { question: `${a} + ${b} + ${c} = ?`, answer: String(a + b + c), typeLabel: '加法交换律' };
             }
         },
         'law-add-assoc': {
             generate: () => {
-                const a = rand(10, 50), b = rand(10, 50), c = rand(10, 50);
+                const target = pick([30, 40, 50, 50, 60, 80, 100]);
+                const b = rand(Math.max(10, target - 49), Math.min(49, target - 10));
+                const c = target - b;
+                const a = rand(10, 50);
                 return { question: `${a} + ${b} + ${c} = ?`, answer: String(a + b + c), typeLabel: '加法结合律' };
             }
         },
         'law-sub-prop': {
             generate: () => {
-                const a = rand(50, 200), b = rand(2, 20), c = rand(2, 20);
+                const target = pick([10, 10, 20, 20, 30, 40, 50]);
+                const b = rand(Math.max(2, target - 20), Math.min(20, target - 2));
+                const c = target - b;
+                const a = rand(50, 200);
+                if (a <= b + c) return this.generate();
                 return { question: `${a} - ${b} - ${c} = ?`, answer: String(a - b - c), typeLabel: '减法性质' };
             }
         },
         'law-mul-comm': {
             generate: () => {
-                const a = rand(2, 9), b = rand(10, 99), c = rand(2, 9);
+                const pairs = [[2,5],[4,5],[5,2],[5,4],[5,6],[5,8],[6,5],[8,5]];
+                const [a, c] = pick(pairs);
+                const b = rand(10, 99);
                 return { question: `${a} × ${b} × ${c} = ?`, answer: String(a * b * c), typeLabel: '乘法交换律' };
             }
         },
         'law-mul-dist': {
             generate: () => {
-                const a = pick([99, 101, 98, 102]), b = rand(11, 89);
+                const a = pick([99, 99, 101, 98, 102, 999]);
+                const b = a === 999 ? rand(2, 9) : rand(11, 89);
                 return { question: `${a} × ${b} = ?`, answer: String(a * b), typeLabel: '乘法分配律' };
             }
         },
         'law-div-prop': {
             generate: () => {
-                const b = rand(2, 9), c = rand(2, 9), ans = rand(10, 30), a = ans * b * c;
+                const pairs = [[2,5],[5,2],[4,5],[5,4]];
+                const [b, c] = pick(pairs);
+                const ans = rand(2, 15);
+                const a = ans * b * c;
                 return { question: `${a} ÷ ${b} ÷ ${c} = ?`, answer: String(ans), typeLabel: '除法性质' };
             }
         },

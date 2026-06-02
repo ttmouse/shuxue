@@ -106,6 +106,12 @@ const Framework = (() => {
       location.hash = '#/';
     },
 
+    /** 隐藏所有视图（供从视图跳转到旧页面时用） */
+    hideAllViews() {
+      homeView.style.display = 'none';
+      modeView.style.display = 'none';
+    },
+
     /** 获取当前模式 */
     _getCurrentMode() {
       return currentMode;
@@ -132,6 +138,10 @@ const Framework = (() => {
     const hash = fullHash.replace(/^\//, '');
     if (!hash || hash === '') {
       api.goHome();
+    } else if (hash === 'wrongbook') {
+      if (typeof showGlobalWrongBook === 'function') {
+        showGlobalWrongBook();
+      }
     } else if (registry[hash]) {
       api.navigate(hash, { noHash: true });
     } else if (hash === 'practice' || hash.startsWith('practice/')) {

@@ -79,7 +79,7 @@ const Knowledge = (() => {
                         { id: 'law-add-assoc',   label: '加法结合律',     desc: '如 34+22+18' },
                         { id: 'law-sub-prop',    label: '减法运算性质',   desc: '如 544-8-12' },
                         { id: 'law-mul-comm',    label: '乘法交换律和结合律', desc: '如 2×365×5' },
-                        { id: 'law-mul-dist',   label: '乘法分配律',     desc: '如 11×59' },
+                        { id: 'law-mul-dist',   label: '乘法分配律',     desc: '如 99×25' },
                         { id: 'law-div-prop',    label: '除法运算性质',   desc: '如 260÷2÷5' },
                     ],
                 },

@@ -53,19 +53,17 @@ function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
 
-    // 更新 URL hash（仅在传统口算模式下）
-    if (typeof Framework !== 'undefined' && Framework._getCurrentMode?.() === 'practice') {
-      const hashMap = {
+    // 更新 URL hash
+    const hashMap = {
         'page-home': '#/practice',
         'page-settings': '#/practice/settings',
         'page-practice': '#/practice/play',
         'page-result': '#/practice/result',
-        'page-wrongbook': '#/practice/wrongbook',
+        'page-wrongbook': '#/wrongbook',
         'page-retry': '#/practice/retry',
-      };
-      if (hashMap[pageId] && location.hash !== hashMap[pageId]) {
+    };
+    if (hashMap[pageId] && location.hash !== hashMap[pageId]) {
         location.hash = hashMap[pageId];
-      }
     }
 
     // 如果显示首页，更新统计
@@ -79,6 +77,11 @@ function showPage(pageId) {
 }
 
 function $(id) { return document.getElementById(id); }
+
+/** 高亮题面中的加减乘除运算符 */
+function highlightOperators(text) {
+  return text.replace(/([+\−×÷])/g, '<span class="q-op">$1</span>');
+}
 
 // ============================================================
 // 设置页
@@ -125,7 +128,7 @@ function renderTopicSelect() {
                             html += '<div class="topic-config">';
                             html += '<div class="expand-label">题目数量</div>';
                             html += '<div class="tc-row">';
-                            [10, 20, 30, 60].forEach(n => {
+                            [10, 20, 30, 60, 100].forEach(n => {
                                 html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
                             });
                             html += '</div>';
@@ -142,7 +145,7 @@ function renderTopicSelect() {
                         html += '<div class="topic-config">';
                         html += '<div class="expand-label">题目数量</div>';
                         html += '<div class="tc-row">';
-                        [10, 20, 30, 60].forEach(n => {
+                        [10, 20, 30, 60, 100].forEach(n => {
                             html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
                         });
                         html += '</div>';
@@ -161,7 +164,7 @@ function renderTopicSelect() {
                         html += '<div class="topic-config">';
                         html += '<div class="expand-label">题目数量</div>';
                         html += '<div class="tc-row">';
-                        [10, 20, 30, 60].forEach(n => {
+                        [10, 20, 30, 60, 100].forEach(n => {
                             html += '<button class="tc-count' + (prefs.count === n ? ' active' : '') + '" data-count="' + n + '">' + n + '</button>';
                         });
                         html += '</div>';
@@ -264,34 +267,40 @@ function renderQuestion() {
     const total = state.questions.length;
     const q = state.questions[idx];
 
-    $('question-num').textContent = idx + 1;
-    $('question-total').textContent = total;
-    $('correct-count').textContent = state.correctCount;
-    $('wrong-count').textContent = state.wrongCount;
-    $('progress-fill').style.width = `${(idx / total) * 100}%`;
+    $('c-correct').textContent = state.correctCount;
+    $('c-wrong').textContent = state.wrongCount;
+    $('c-progress').style.width = `${(idx / total) * 100}%`;
+    $('c-step').textContent = `${idx + 1}/${total}`;
 
-    $('question-type-label').textContent = `第 ${idx + 1} 题 · ${q.typeLabel}`;
-    $('question-text').textContent = q.question;
+    $('c-law').textContent = `第 ${idx + 1} 题 · ${q.typeLabel}`;
+    $('c-question').innerHTML = highlightOperators(q.question);
 
     // 恢复确定键
-    const sb = document.getElementById('prac-submit');
-    if (sb) { sb.textContent = '确定'; sb.onclick = submitAnswer; }
+    const sb = $('c-submit');
+    if (sb) sb.textContent = '确定';
 
     // 重置输入
     pracResetInput();
 
-    // 隐藏反馈
-    $('feedback-area').style.display = 'none';
-    $('prac-display-text').className = 'prac-display-text';
+    // 比大小题型显示比较符号键盘行
+    const cmpRow = document.querySelector('.c-pr-cmp');
+    if (cmpRow) {
+        cmpRow.style.display = q.type === 'dec-compare' ? '' : 'none';
+    }
+
+    // 隐藏反馈和结果
+    $('c-fb').style.display = 'none';
+    $('c-result').style.display = 'none';
+    $('c-input-text').className = 'c-play-input-text';
 }
 
 function submitAnswer() {
-    const userAnswer = (document.getElementById('answer-input')?.value || '').trim();
-    const display = document.getElementById('prac-display-text');
+    const userAnswer = pracInput.trim();
+    const display = $('c-input-text');
 
     if (userAnswer === '') {
-        if (display) { display.textContent = '请输入答案！'; display.className = 'prac-display-text error'; }
-        setTimeout(() => { if (display) { display.textContent = pracInput; display.className = 'prac-display-text'; } }, 1200);
+        if (display) { display.textContent = '请输入答案！'; display.className = 'c-play-input-text err'; }
+        setTimeout(() => { if (display) { display.textContent = pracInput; display.className = 'c-play-input-text'; } }, 1200);
         return;
     }
 
@@ -304,7 +313,7 @@ function submitAnswer() {
     const isCorrect = compareAnswers(userAnswer, correctAnswer);
 
     // 禁用键盘
-    const kp = document.getElementById('prac-keypad');
+    const kp = $('c-keys');
     if (kp) kp.style.pointerEvents = 'none';
 
     // 防冲撞：当前回车已经用于提交，屏蔽键盘翻题 200ms
@@ -313,20 +322,19 @@ function submitAnswer() {
 
     if (isCorrect) {
         state.correctCount++;
-        const qt = $('question-text');
-        if (qt) { qt.innerHTML = q.question.replace('?', `<span style="color:var(--primary);font-weight:800;">${userAnswer}</span> <span style="color:var(--primary);font-size:18px;"> ✓</span>`); }
+        const qt = $('c-question');
+        if (qt) { qt.innerHTML = highlightOperators(q.question).replace('?', `<span class="c-play-ok">${userAnswer}</span> <span style="color:var(--primary);font-size:18px;"> ✓</span>`); }
         if (Framework.sound) Framework.sound.playCorrect();
-        // 键盘不动，等自动跳转
         setTimeout(() => nextQuestion(), 500);
-        $('correct-count').textContent = state.correctCount;
-        $('wrong-count').textContent = state.wrongCount;
+        $('c-correct').textContent = state.correctCount;
+        $('c-wrong').textContent = state.wrongCount;
         return;
     }
 
     // 答错：标红 + 自动跳转
     state.wrongCount++;
-    const qt = $('question-text');
-    if (qt) { qt.innerHTML = q.question.replace('?', `<span style="color:var(--red);font-weight:800;">${userAnswer}</span>`); }
+    const qt = $('c-question');
+    if (qt) { qt.innerHTML = highlightOperators(q.question).replace('?', `<span class="c-play-no">${userAnswer}</span>`); }
     if (Framework.sound) Framework.sound.playWrong();
     WrongBook.add({
         question: q.question,
@@ -337,8 +345,8 @@ function submitAnswer() {
     });
     setTimeout(() => nextQuestion(), 600);
 
-    $('correct-count').textContent = state.correctCount;
-    $('wrong-count').textContent = state.wrongCount;
+    $('c-correct').textContent = state.correctCount;
+    $('c-wrong').textContent = state.wrongCount;
 }
 
 function compareAnswers(user, correct) {
@@ -382,13 +390,13 @@ function compareAnswers(user, correct) {
 }
 
 function showFeedback(result, q, userAnswer) {
-    const area = $('feedback-area');
-    const icon = $('feedback-icon');
-    const text = $('feedback-text');
-    const detail = $('feedback-detail');
+    const area = $('c-fb');
+    const icon = $('c-fb-icon');
+    const text = $('c-fb-title');
+    const detail = $('c-fb-bd');
 
     // 隐藏键盘，用反馈替换其位置
-    const kp = document.getElementById('prac-keypad');
+    const kp = $('c-keys');
     if (kp) kp.style.display = 'none';
 
     area.className = 'c-fb show ' + result;
@@ -445,7 +453,7 @@ function showFeedback(result, q, userAnswer) {
 
     // 下一题按钮文案
     const isLast = state.currentIndex >= state.questions.length - 1;
-    $('next-btn').textContent = isLast ? '查看结果' : '下一题';
+    $('c-fb-next').textContent = isLast ? '查看结果' : '下一题';
 }
 
 function createNextBar() {
@@ -455,7 +463,7 @@ function createNextBar() {
   bar.style.display = 'none';
   const isLast = state.currentIndex >= state.questions.length - 1;
   bar.innerHTML = `<button class="c-key c-key-go" onclick="nextQuestion()" style="flex:1;">${isLast ? '查看结果' : '下一题'}</button>`;
-  const kp = document.getElementById('prac-keypad');
+  const kp = $('c-keys');
   if (kp && kp.parentNode) kp.parentNode.insertBefore(bar, kp.nextSibling);
   return bar;
 }
@@ -465,15 +473,13 @@ function nextQuestion() {
     state.currentIndex++;
 
     // 恢复键盘
-    const kp = document.getElementById('prac-keypad');
+    const kp = $('c-keys');
     if (kp) { kp.style.display = ''; kp.style.pointerEvents = ''; }
-    const nb = document.getElementById('prac-next-bar');
-    if (nb) nb.style.display = 'none';
-    const fb = document.getElementById('feedback-area');
+    const fb = $('c-fb');
     if (fb) fb.style.display = 'none';
 
     if (state.currentIndex >= state.questions.length) {
-        showResult();
+        showPracticeResult();
         return;
     }
 
@@ -494,7 +500,7 @@ function quitPractice() {
 // 结果页
 // ============================================================
 
-function showResult() {
+function showPracticeResult() {
     const total = state.questions.length;
     const correct = state.correctCount;
     const wrong = state.wrongCount;
@@ -502,46 +508,64 @@ function showResult() {
     const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
     const timeStr = elapsed < 60 ? `${elapsed} 秒` : `${Math.floor(elapsed / 60)} 分 ${elapsed % 60} 秒`;
 
+    // 隐藏 play 区
+    const keys = $('c-keys');
+    if (keys) keys.style.display = 'none';
+    const fb = $('c-fb');
+    if (fb) fb.style.display = 'none';
+    const core = document.querySelector('.c-play-core');
+    if (core) core.style.display = 'none';
+    const progressBar = document.querySelector('.c-play-progress');
+    if (progressBar) progressBar.style.display = 'none';
+
     // 根据正确率给出不同反馈
-    let icon, title;
+    let iconEmoji, title;
     if (rate === 100) {
-        icon = '🏆'; title = '满分！太厉害了！🎉';
+        iconEmoji = '🏆'; title = '满分！太厉害了！🎉';
         setTimeout(launchCelebration, 300);
     } else if (rate >= 90) {
-        icon = '🌟'; title = '非常优秀！继续保持！';
+        iconEmoji = '🌟'; title = '非常优秀！继续保持！';
     } else if (rate >= 80) {
-        icon = '👍'; title = '表现不错！还可以更好！';
+        iconEmoji = '👍'; title = '表现不错！还可以更好！';
     } else if (rate >= 60) {
-        icon = '💪'; title = '还需加油！多练练就好了！';
+        iconEmoji = '💪'; title = '还需加油！多练练就好了！';
     } else {
-        icon = '📚'; title = '要多练习哦！加油！';
+        iconEmoji = '📚'; title = '要多练习哦！加油！';
     }
 
-    $('result-icon').textContent = icon;
-    $('result-title').textContent = title;
-    $('result-correct').textContent = `${correct}/${total}`;
-    $('result-total').textContent = total;
-    $('result-rate').textContent = `${rate}%`;
-    $('result-time').textContent = timeStr;
+    $('c-result-icon').textContent = iconEmoji;
+    $('c-result-title').textContent = title;
+    $('c-result').style.display = 'flex';
 
-    const wrongItem = $('result-wrong-item');
-    if (wrong > 0) {
-        wrongItem.style.display = 'flex';
-        $('result-wrong-count').textContent = wrong;
-    } else {
-        wrongItem.style.display = 'none';
+    // 环形进度
+    const ringFill = $('c-ring-fill');
+    const ringPct = $('c-ring-pct');
+    const circumference = 2 * Math.PI * 15.9;
+    if (ringFill) {
+        ringFill.style.strokeDasharray = circumference;
+        ringFill.style.strokeDashoffset = circumference - (rate / 100) * circumference;
     }
+    if (ringPct) ringPct.textContent = rate + '%';
+
+    // 统计数据
+    $('c-result-stats').innerHTML = `
+        <div class="c-rs-row correct-row"><span>正确数</span><span>${correct}/${total}</span></div>
+        <div class="c-rs-row"><span>错误数</span><span>${wrong}</span></div>
+        <div class="c-rs-row streak-row"><span>用时</span><span>${timeStr}</span></div>
+    `;
 
     // 记录每日统计
     const practicedTopics = state.questions.map(q => q.type);
     Stats.recordPractice(total, correct, practicedTopics, state.difficulty);
 
-    showPage('page-result');
-    Sound.playComplete();
+    // 更新 URL hash
+    if (typeof Framework !== 'undefined') {
+        location.hash = '#/practice/result';
+    }
 
-    // 如果是满分，放一次庆祝
+    if (typeof Sound !== 'undefined') Sound.playComplete();
     if (rate === 100) {
-        launchCelebration();
+        setTimeout(launchCelebration, 400);
     }
 }
 
@@ -554,6 +578,28 @@ function showWrongBook() {
     showPage('page-wrongbook');
 }
 
+// 从新模式首页/结果页跳转到错题本
+function showGlobalWrongBook() {
+    if (typeof Framework !== 'undefined' && Framework.hideAllViews) {
+        Framework.hideAllViews();
+    }
+    showWrongBook();
+    // 更新 URL 为错题本地址（不重复触发）
+    if (typeof Framework !== 'undefined' && location.hash !== '#/wrongbook') {
+        location.hash = '#/wrongbook';
+    }
+}
+
+// 更新首页错题本计数 badge
+function updateWbBadge() {
+    const badge = $('home-wb-count');
+    if (badge && typeof WrongBook !== 'undefined') {
+        const count = WrongBook.getCount();
+        badge.textContent = count;
+        badge.style.display = count > 0 ? '' : 'none';
+    }
+}
+
 function renderWrongBook() {
     const list = $('wrongbook-list');
     const stats = $('wrongbook-stats');
@@ -561,7 +607,7 @@ function renderWrongBook() {
     const items = WrongBook.getByType(filter);
 
     if (items.length === 0) {
-        list.innerHTML = '<p class="empty-msg">暂无错题，继续加油！🎉</p>';
+        list.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:var(--s12) 0;color:var(--n300);font-size:15px;">暂无错题，继续加油！</td></tr>';
         stats.textContent = filter === 'all' ? '' : '该题型暂无错题';
         return;
     }
@@ -574,27 +620,21 @@ function renderWrongBook() {
     let html = '';
 
     Object.keys(groups).sort().reverse().forEach(date => {
-        html += `<div style="margin-bottom:8px;">`;
-        html += `<div style="font-size:13px;color:var(--text-light);padding:4px 0;">📅 ${date}</div>`;
+        html += `<tr class="wb-date-row"><td colspan="4">${date}</td></tr>`;
         groups[date].forEach(item => {
             const times = item.count || 1;
-            const countBadge = times > 1 ? `<span class="wi-count">错${times}次</span>` : '';
-            html += `
-                <div class="wrong-item">
-                    ${countBadge}
-                    <div class="wi-question">${escapeHtml(item.question)}</div>
-                    <div class="wi-answers">
-                        <div class="wi-correct">${escapeHtml(item.correctAnswer)}</div>
-                        <div class="wi-user">你的答案：${escapeHtml(item.userAnswers?.join('、') || item.userAnswer || '')}</div>
-                    </div>
-                    <button class="wi-delete" onclick="deleteWrongItem('${item.id}')" title="删除">✕</button>
-                </div>
-            `;
+            const userAns = item.userAnswers?.join('、') || item.userAnswer || '';
+            const countHtml = times > 1 ? times : '';
+            html += `<tr>
+                <td class="wi-q">${escapeHtml(item.question)}</td>
+                <td class="wi-n">${countHtml}</td>
+                <td class="wi-c">${item.correctAnswer}</td>
+                <td class="wi-u">${userAns || ''}</td>
+            </tr>`;
         });
-        html += `</div>`;
     });
 
-    list.innerHTML = html;
+    document.getElementById('wrongbook-list').innerHTML = html;
 }
 
 function deleteWrongItem(id) {
@@ -609,6 +649,7 @@ function clearWrongBook() {
         WrongBook.clear();
         renderWrongBook();
         updateHomeStats();
+        updateWbBadge();
     }
 }
 
@@ -745,6 +786,7 @@ function quitRetry() {
 // ============================================================
 
 function updateHomeStats() {
+    updateWbBadge();
     const count = WrongBook.getCount();
     const statsEl = $('home-stats');
     if (count > 0) {
@@ -828,9 +870,9 @@ function escapeHtml(str) {
 
 document.addEventListener('keydown', (e) => {
     // 只处理反馈区可见时的情况
-    const fb = $('feedback-area');
+    const fb = $('c-fb');
     const retryFb = $('retry-feedback-area');
-    const feedbackVisible = fb && fb.style.display === 'block';
+    const feedbackVisible = fb && (fb.style.display === 'flex' || fb.style.display === 'block');
     const retryVisible = retryFb && retryFb.style.display === 'block';
 
     // justSubmitted 防冲撞：避免提交用的回车同时触发翻题
@@ -838,7 +880,7 @@ document.addEventListener('keydown', (e) => {
 
     if ((feedbackVisible || retryVisible) && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
-        if (feedbackVisible && $('next-btn')) {
+        if (feedbackVisible && $('c-fb-next')) {
             nextQuestion();
         } else if (retryVisible && $('retry-next-btn')) {
             nextRetryQuestion();
@@ -864,13 +906,17 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 let pracInput = '';
 
 function pracKeypadInit() {
-  const keypad = document.getElementById('prac-keypad');
+  const keypad = $('c-keys');
   if (!keypad) return;
-  const display = document.getElementById('prac-display-text');
+  const display = $('c-input-text');
 
   keypad.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
-    if (!btn || btn.id === 'prac-submit') return;
+    if (!btn) return;
+    if (btn.id === 'c-submit') {
+      submitAnswer();
+      return;
+    }
     const val = btn.dataset.v;
 
     if (val === 'bk') {
@@ -882,23 +928,22 @@ function pracKeypadInit() {
     }
 
     display.textContent = pracInput;
-    document.getElementById('prac-display').classList.toggle('has-val', pracInput !== '');
-    document.getElementById('answer-input').value = pracInput;
+    $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
     if (Framework.sound) Framework.sound.playTap();
   });
 
   document.addEventListener('keydown', (e) => {
     if (!document.querySelector('#page-practice.active, #page-retry.active')) return;
-    if (/^[0-9.\-]$/.test(e.key)) {
+    if (/^[0-9.\-<>=]$/.test(e.key)) {
       pracInput += e.key;
       display.textContent = pracInput;
-      document.getElementById('answer-input').value = pracInput;
+      $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
       if (Framework.sound) Framework.sound.playTap();
       e.preventDefault();
     } else if (e.key === 'Backspace') {
       pracInput = pracInput.slice(0, -1);
       display.textContent = pracInput;
-      document.getElementById('answer-input').value = pracInput;
+      $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
       if (Framework.sound) Framework.sound.playErase();
       e.preventDefault();
     } else if (e.key === 'Enter') {
@@ -910,11 +955,9 @@ function pracKeypadInit() {
 
 function pracResetInput() {
   pracInput = '';
-  const d = document.getElementById('prac-display-text');
+  const d = $('c-input-text');
   if (d) d.textContent = '';
-  const h = document.getElementById('answer-input');
-  if (h) h.value = '';
-  const pd = document.getElementById('prac-display');
+  const pd = $('c-input-wrap');
   if (pd) pd.classList.remove('has-val');
 }
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2358CC02' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2'/><path d='M18 14v4'/><path d='M10 14v4'/><path d='M14 14v4'/><path d='M14 4v6'/><path d='M10 4v6'/><path d='M12 12v.01'/></svg>">
 <title>数学思维训练</title>
-<link rel="stylesheet" href="css/style-new.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -102,30 +102,28 @@
     <span class="top-title">传统口算</span>
     <div style="width:44px;"></div>
   </div>
-  <div style="flex:1;overflow-y:auto;padding:0;">
   <div class="c-play" id="c-play">
     <div class="c-play-progress">
       <div class="c-play-pb-track">
-        <div class="c-play-pb-fill" id="progress-fill" style="width:0%"></div>
+        <div class="c-play-pb-fill" id="c-progress" style="width:0%"></div>
       </div>
-      <span class="c-play-step"><span id="question-num">1</span>/<span id="question-total">20</span></span>
+      <span class="c-play-step" id="c-step">1/20</span>
       <div class="c-play-score">
-        <span class="c-cor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> <span id="correct-count">0</span></span>
-        <span class="c-str"><span id="wrong-count">0</span></span>
+        <span class="c-cor"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--primary)"><polyline points="20 6 9 17 4 12"/></svg> <span id="c-correct">0</span></span>
+        <span class="c-str"><span id="c-wrong">0</span></span>
       </div>
     </div>
 
     <div class="c-play-core">
-      <div class="c-play-law" id="question-type-label">第 1 题 · 加减法</div>
-      <div class="c-play-q" id="question-text">123 + 456 = ?</div>
-      <div class="c-play-input" id="prac-display">
-        <span class="c-play-input-text" id="prac-display-text"></span>
-        <span class="c-play-cursor" id="prac-cursor">|</span>
+      <div class="c-play-law" id="c-law">第 1 题 · 加减法</div>
+      <div class="c-play-q" id="c-question">123 + 456 = ?</div>
+      <div class="c-play-input" id="c-input-wrap">
+        <span class="c-play-input-text" id="c-input-text"></span>
+        <span class="c-play-cursor" id="c-cursor">|</span>
       </div>
-      <input type="hidden" id="answer-input">
     </div>
 
-    <div class="c-play-keys" id="prac-keypad">
+    <div class="c-play-keys" id="c-keys">
       <div class="c-pr">
         <button class="c-key" data-v="7">7</button>
         <button class="c-key" data-v="8">8</button>
@@ -148,27 +146,49 @@
         <button class="c-key" data-v=".">.</button>
         <button class="c-key" data-v="0">0</button>
         <button class="c-key" data-v="/">/</button>
-        <button class="c-key c-key-go" id="prac-submit" onclick="submitAnswer()">确定</button>
+        <button class="c-key c-key-go" id="c-submit">确定</button>
+      </div>
+      <div class="c-pr c-pr-cmp" style="display:none">
+        <button class="c-key c-key-cmp" data-v=">">&gt;</button>
+        <button class="c-key c-key-cmp" data-v="<">&lt;</button>
+        <button class="c-key c-key-cmp" data-v="=">=</button>
       </div>
     </div>
 
-    <div class="confirm-overlay" id="confirm-overlay">
-    <div class="confirm-sheet">
-      <div class="confirm-title">退出练习</div>
-      <div class="confirm-desc">当前进度不会保存<br>确定要退出吗？</div>
-      <div class="confirm-actions">
-        <button class="confirm-btn confirm-btn-primary" id="confirm-yes">退出</button>
-        <button class="confirm-btn confirm-btn-cancel" id="confirm-no">继续练习</button>
+    <div class="c-fb" id="c-fb" style="display:none">
+      <div class="c-fb-icon" id="c-fb-icon"></div>
+      <div class="c-fb-title" id="c-fb-title"></div>
+      <div class="c-fb-law" id="c-fb-law"></div>
+      <div class="c-fb-bd" id="c-fb-bd"></div>
+      <button class="c-fb-next" id="c-fb-next" onclick="nextQuestion()">下一题</button>
+    </div>
+
+    <div class="c-result" id="c-result" style="display:none">
+      <div class="c-result-icon">🏆</div>
+      <div class="c-result-title" id="c-result-title">完成！</div>
+      <div class="c-result-ring" id="c-result-ring">
+        <svg viewBox="0 0 36 36">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--primary)"/>
+              <stop offset="100%" stop-color="#7FDD38"/>
+            </linearGradient>
+          </defs>
+          <circle class="c-result-ring-bg" cx="18" cy="18" r="15.9"/>
+          <circle class="c-result-ring-fill" cx="18" cy="18" r="15.9"
+            stroke-dasharray="100" stroke-dashoffset="100" id="c-ring-fill"/>
+        </svg>
+        <div class="c-result-ring-text">
+          <div class="c-result-ring-pct" id="c-ring-pct">0%</div>
+          <div class="c-result-ring-label">正确率</div>
+        </div>
+      </div>
+      <div class="c-result-stats" id="c-result-stats"></div>
+      <div class="c-result-actions">
+        <button class="c-result-btn c-result-btn-primary" id="c-restart" onclick="showPage('page-settings')">再来一轮</button>
+        <button class="c-result-btn c-result-btn-ghost" id="c-view-wb" onclick="showWrongBook()">查看错题本</button>
       </div>
     </div>
-  </div>
-  <div class="c-fb" id="feedback-area" style="display:none">
-      <div class="c-fb-icon" id="feedback-icon"></div>
-      <div class="c-fb-title" id="feedback-text"></div>
-      <div class="c-fb-bd" id="feedback-detail"></div>
-      <button class="c-fb-next" id="next-btn" onclick="nextQuestion()">下一题</button>
-    </div>
-  </div>
   </div>
 </div>
 
@@ -224,8 +244,20 @@
       <button class="filter-btn" data-filter="clever">运算定律巧算</button>
     </div>
     <div class="wrongbook-stats" id="wrongbook-stats"></div>
-    <div class="wrongbook-list" id="wrongbook-list"><p class="empty-msg">暂无错题，继续加油！</p></div>
-    <button class="btn btn-primary" onclick="retryWrongQuestions()">重练错题</button>
+    <table class="wb-table">
+      <thead>
+        <tr>
+          <th>题目</th>
+          <th>错次</th>
+          <th>正确答案</th>
+          <th>你的答案</th>
+        </tr>
+      </thead>
+      <tbody id="wrongbook-list"></tbody>
+    </table>
+    <div class="wrongbook-actions">
+      <button class="btn btn-primary" onclick="retryWrongQuestions()">重练错题</button>
+    </div>
   </div>
 </div>
 
@@ -268,8 +300,8 @@
      Scripts
      ============================================================ -->
 <script src="js/lucide.js"></script>
-<script src="js/knowledge.js"></script>
-<script src="js/questions.js"></script>
+<script src="js/knowledge.js?v=2"></script>
+<script src="js/questions.js?v=4"></script>
 <script src="js/wrongbook.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/sound.js"></script>

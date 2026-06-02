@@ -443,7 +443,7 @@ Framework.register({
       // --- 输入 ---
       function updateInput() {
         display.textContent = inputStr;
-        cursor.style.display = inputStr === '' ? 'inline' : 'none';
+        cursor.style.visibility = inputStr === '' ? 'visible' : 'hidden';
         inputWrap.classList.toggle('has-val', inputStr !== '');
       }
       function clearInput() { inputStr = ''; updateInput(); }
@@ -468,6 +468,10 @@ Framework.register({
       });
 
       // 键盘快捷键
+      // 使容器可聚焦，PC 键盘直接输入
+      container.setAttribute('tabindex', '-1');
+      container.focus();
+
       container.addEventListener('keydown', e => {
         if (state.answered || state.screen !== 'play') return;
         const k = e.key;
@@ -495,7 +499,7 @@ Framework.register({
         if (ans === '') {
           display.textContent = '输入答案';
           display.className = 'c-play-input-text err';
-          cursor.style.display = 'none';
+          cursor.style.visibility = 'hidden';
           displayTimer = setTimeout(() => { display.className = 'c-play-input-text'; updateInput(); }, 1000);
           return;
         }
@@ -566,7 +570,7 @@ Framework.register({
         const q = state.questions[state.currentIndex];
         if (!q) return;
         currentQuestion = q;
-        qEl.textContent = q.question;
+        qEl.innerHTML = typeof highlightOperators === 'function' ? highlightOperators(q.question) : q.question;
         lawEl.textContent = q.lawName || '';
         const pct = (state.currentIndex / state.questions.length) * 100;
         pbFill.style.width = pct + '%';
@@ -580,7 +584,7 @@ Framework.register({
         state.answered = false;
         display.className = 'c-play-input-text';
         inputWrap.classList.remove('has-val');
-        cursor.style.display = 'inline';
+        cursor.style.visibility = 'visible';
       }
 
       function showResults() {
