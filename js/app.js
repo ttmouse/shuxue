@@ -736,7 +736,6 @@ function submitRetryAnswer() {
     if (isCorrect) {
         state.retryCorrectCount++;
         $('retry-correct').textContent = state.retryCorrectCount;
-        WrongBook.remove(q.id);
         Sound.playCorrect();
         showRetryFeedback('correct', q, userAnswer);
     } else {
