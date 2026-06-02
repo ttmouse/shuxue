@@ -830,7 +830,8 @@ body {
   height: 100dvh; display: flex; flex-direction: column; position: relative; overflow: hidden;
 }
 #page-retry .mode-top-bar { width: 100%; align-self: stretch; }
-#page-retry .c-play { flex: 1; min-height: 0; width: 100%; padding: 0 var(--s4); }
+#page-retry .c-play,
+#page-retry #retry-play { flex: 1; min-height: 0; width: 100%; padding: 0 var(--s4); }
 #page-retry .c-play-keys { padding-left: 0; padding-right: 0; }
 
 /* Practice page */

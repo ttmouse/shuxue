@@ -704,9 +704,9 @@ function renderRetryQuestion() {
 
     // 重置键盘输入
     pracInput = '';
-    const display = $('c-input-text');
+    const display = $('retry-input-text');
     if (display) display.textContent = '';
-    const wrap = $('c-input-wrap');
+    const wrap = $('retry-input-wrap');
     if (wrap) wrap.classList.remove('has-val');
 
     $('retry-fb').style.display = 'none';
@@ -716,7 +716,7 @@ function submitRetryAnswer() {
     const userAnswer = pracInput.trim();
 
     if (userAnswer === '') {
-        const display = $('c-input-text');
+        const display = $('retry-input-text');
         if (display) { display.textContent = '请输入答案！'; display.className = 'c-play-input-text err'; }
         setTimeout(() => { if (display) { display.textContent = pracInput; display.className = 'c-play-input-text'; } }, 1200);
         return;
@@ -950,7 +950,8 @@ function pracKeypadInit() {
     }
 
     display.textContent = pracInput;
-    $('c-input-wrap').classList.toggle('has-val', pracInput !== '');
+    var inputWrap = document.querySelector('#page-retry.active') ? $('retry-input-wrap') : $('c-input-wrap');
+    if (inputWrap) inputWrap.classList.toggle('has-val', pracInput !== '');
     if (Framework.sound) Framework.sound.playTap();
   }
 
@@ -984,9 +985,10 @@ function pracKeypadInit() {
 
 function pracResetInput() {
   pracInput = '';
-  const d = $('c-input-text');
+  const isRetry = document.querySelector('#page-retry.active');
+  const d = isRetry ? $('retry-input-text') : $('c-input-text');
   if (d) d.textContent = '';
-  const pd = $('c-input-wrap');
+  const pd = isRetry ? $('retry-input-wrap') : $('c-input-wrap');
   if (pd) pd.classList.remove('has-val');
 }
 
