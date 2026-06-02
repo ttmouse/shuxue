@@ -153,18 +153,29 @@ function generateSteps(q) {
         }
     }
 
-    // 通用: 简单加减乘除
+    // 通用: 逐步计算多步表达式
     try {
-        const match = text.match(/^(-?\d+)\s*([+\−×÷])\s*(-?\d+)$/);
-        if (match) {
-            const a = parseInt(match[1]), op = match[2], b = parseInt(match[3]);
-            if (op === '+') return [`${a} + ${b} = ${a + b}`];
-            if (op === '−') return [`${a} − ${b} = ${a - b}`];
-            if (op === '×') return [`${a} × ${b} = ${a * b}`];
-            if (op === '÷') {
-                if (b !== 0 && a % b === 0) return [`${a} ÷ ${b} = ${a / b}`];
-                return [`${a} ÷ ${b} = ${(a / b).toFixed(2)}`];
+        // 解析表达式为 tokens: 数字和运算符交替，支持小数和整数
+        const tokens = text.match(/-?\d+\.?\d*|[+\−×÷]/g);
+        if (tokens && tokens.length >= 3 && tokens.length % 2 === 1) {
+            const steps = [];
+            let current = parseFloat(tokens[0]);
+            for (let i = 1; i < tokens.length; i += 2) {
+                const op = tokens[i];
+                const num = parseFloat(tokens[i + 1]);
+                let next;
+                const fmt = (v) => Number.isInteger(v) ? String(v) : v.toFixed(2);
+                if (op === '+') { next = current + num; steps.push(`${fmt(current)} + ${fmt(num)} = ${fmt(next)}`); }
+                else if (op === '−') { next = current - num; steps.push(`${fmt(current)} − ${fmt(num)} = ${fmt(next)}`); }
+                else if (op === '×') { next = current * num; steps.push(`${fmt(current)} × ${fmt(num)} = ${fmt(next)}`); }
+                else if (op === '÷') {
+                    next = current / num;
+                    const nf = Number.isInteger(next) ? next : next.toFixed(2);
+                    steps.push(`${fmt(current)} ÷ ${fmt(num)} = ${nf}`);
+                }
+                current = next;
             }
+            if (steps.length > 0) return steps;
         }
     } catch(e) {}
 
