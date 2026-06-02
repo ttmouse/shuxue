@@ -172,13 +172,7 @@ body {
 }
 .home-subtitle { font-size: 14px; color: var(--n400); font-weight: 500; margin-top: var(--s1); }
 
-/* Micro copy — "从一个小挑战开始" */
-.home-header::after {
-  content: '从一个小挑战开始';
-  display: block; margin-top: var(--s4);
-  font-size: 13px; font-weight: 500; color: var(--n300);
-  letter-spacing: 0.04em;
-}
+
 
 /* Mode cards grid */
 .mode-grid {
