@@ -475,51 +475,39 @@ function showFeedback(result, q, userAnswer) {
 }
 
 function showHint(q) {
-    const area = $('c-fb');
-    const icon = $('c-fb-icon');
-    const text = $('c-fb-title');
-    const detail = $('c-fb-bd');
-    const nextBtn = $('c-fb-next');
+    const overlay = $('prac-hint-overlay');
+    const stepsEl = $('prac-hint-steps');
+    const closeBtn = $('prac-hint-close');
 
-    // 隐藏键盘，用反馈显示提示
-    const kp = $('prac-keypad');
-    if (kp) kp.style.display = 'none';
-    const hintRow = document.querySelector('.prac-hint-row');
-    if (hintRow) hintRow.style.display = 'none';
-
-    area.style.display = 'block';
-    area.className = 'c-fb show';
-    area.style.background = 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)';
-    area.style.border = '1px solid rgba(59, 130, 246, 0.2)';
-
-    icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>';
-    text.textContent = '解题提示';
+    let html = '';
 
     if (q.tip) {
-        detail.innerHTML = `<div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">${q.tip}</div>`;
-    } else if (q.steps && Array.isArray(q.steps)) {
-        let stepHtml = '<div style="display:flex;flex-direction:column;gap:4px;">';
-        q.steps.forEach((step, i) => {
-            const color = i === q.steps.length - 1 ? 'var(--primary)' : 'var(--text-secondary)';
-            stepHtml += `<div style="font-size:14px;color:${color};padding:3px 0;font-weight:600;">步骤${i + 1}：${step}</div>`;
-        });
-        stepHtml += '</div>';
-        detail.innerHTML = stepHtml;
-    } else {
-        const ans = q.answer || '?';
-        detail.innerHTML = `<div style="font-size:14px;color:var(--text-secondary);line-height:1.6;">正确答案：<span style="color:var(--primary);font-weight:700;font-size:18px;">${escapeHtml(ans)}</span></div>`;
+        html += `<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;padding:var(--s3);background:var(--n50);border-radius:var(--r-md);margin-bottom:var(--s3);">${q.tip}</div>`;
     }
 
-    nextBtn.textContent = '关闭';
-    nextBtn.onclick = () => {
-        area.style.display = 'none';
-        area.style.background = '';
-        area.style.border = '';
-        if (kp) kp.style.display = '';
-        if (hintRow) hintRow.style.display = '';
-        nextBtn.textContent = '下一题';
-        nextBtn.onclick = nextQuestion;
-    };
+    if (q.steps && Array.isArray(q.steps) && q.steps.length > 0) {
+        html += '<div style="display:flex;flex-direction:column;gap:var(--s2);">';
+        q.steps.forEach((step, i) => {
+            const isLast = i === q.steps.length - 1;
+            const color = isLast ? 'var(--primary)' : 'var(--text)';
+            const bg = isLast ? '#F0FDE7' : 'var(--surface)';
+            html += `<div style="display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3);background:${bg};border-radius:var(--r-md);border:1px solid var(--n100);">
+                <span style="width:22px;height:22px;border-radius:50%;background:${isLast ? 'var(--primary)' : 'var(--n100)'};color:${isLast ? '#fff' : 'var(--n400)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${i + 1}</span>
+                <span style="font-size:15px;font-weight:${isLast ? 800 : 600};color:${color};">${escapeHtml(step)}</span>
+            </div>`;
+        });
+        html += '</div>';
+    }
+
+    if (!q.tip && (!q.steps || !Array.isArray(q.steps) || q.steps.length === 0)) {
+        html = '<div style="text-align:center;font-size:14px;color:var(--n300);padding:var(--s12) 0;">这道题没有分步提示</div>';
+    }
+
+    stepsEl.innerHTML = html;
+    overlay.style.display = 'flex';
+
+    closeBtn.onclick = () => { overlay.style.display = 'none'; };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.style.display = 'none'; };
 }
 
 function createNextBar() {
