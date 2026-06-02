@@ -630,6 +630,18 @@ Framework.register({
               </div>`;
             }).join('');
         } else { resultCats.innerHTML = ''; }
+
+        // 记录统计
+        if (typeof Stats !== 'undefined' && typeof Stats.recordPractice === 'function') {
+          const topics = state.questions.map(q => 'clever-' + (q.category || 'unknown'));
+          const topicDetails = {};
+          Object.entries(state.stats).forEach(([id, s]) => {
+            if (s.total > 0) {
+              topicDetails['clever-' + id] = { label: CATS.find(c => c.id === id)?.label || id, correct: s.correct, total: s.total };
+            }
+          });
+          Stats.recordPractice(total, correct, topics, 'easy', topicDetails);
+        }
       }
 
       // --- 启动 ---
