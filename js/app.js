@@ -120,7 +120,7 @@ function renderTopicSelect() {
                     html += '<div class="topic-subs">';
                     t.subtopics.forEach(sub => {
                         const isSel = expandedTopic === sub.id;
-                        html += '<div class="topic-sub' + (isSel ? ' expanded' : '') + '" data-sub="' + sub.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + sub.label + '</div><div class="topic-sub-desc">' + sub.desc + '</div></div><span class="topic-sub-arrow">›</span></div>';
+                        html += '<div class="topic-sub' + (isSel ? ' expanded' : '') + '" data-sub="' + sub.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + sub.label + '</div><div class="topic-sub-desc">' + sub.desc + '</div></div><span class="topic-sub-arrow">' + (isSel ? '−' : '+') + '</span></div>';
                         if (isSel) {
                             html += '<div class="topic-config">';
                             html += '<div class="expand-label">题目数量</div>';
@@ -137,7 +137,7 @@ function renderTopicSelect() {
                     });
                     if (t.id !== '__mixed__') {
                     const isMix = expandedTopic === '__mix-' + t.id + '__';
-                    html += '<div class="topic-sub' + (isMix ? ' expanded' : '') + '" data-sub="__mix-' + t.id + '__"><div class="topic-sub-content"><div class="topic-sub-label">单元练习</div><div class="topic-sub-desc">混合全部</div></div><span class="topic-sub-arrow">›</span></div>';
+                    html += '<div class="topic-sub' + (isMix ? ' expanded' : '') + '" data-sub="__mix-' + t.id + '__"><div class="topic-sub-content"><div class="topic-sub-label">单元练习</div><div class="topic-sub-desc">混合全部</div></div><span class="topic-sub-arrow">' + (isMix ? '−' : '+') + '</span></div>';
                     if (isMix) {
                         html += '<div class="topic-config">';
                         html += '<div class="expand-label">题目数量</div>';
@@ -156,7 +156,7 @@ function renderTopicSelect() {
                 } else {
                     const isSubOpen = expandedTopic === t.id;
                     html += '<div class="topic-subs">';
-                    html += '<div class="topic-sub' + (isSubOpen ? ' expanded' : '') + '" data-sub="' + t.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + t.label + '</div><div class="topic-sub-desc">' + t.desc + '</div></div><span class="topic-sub-arrow">›</span></div>';
+                    html += '<div class="topic-sub' + (isSubOpen ? ' expanded' : '') + '" data-sub="' + t.id + '"><div class="topic-sub-content"><div class="topic-sub-label">' + t.label + '</div><div class="topic-sub-desc">' + t.desc + '</div></div><span class="topic-sub-arrow">' + (isSubOpen ? '−' : '+') + '</span></div>';
                     if (isSubOpen) {
                         html += '<div class="topic-config">';
                         html += '<div class="expand-label">题目数量</div>';
