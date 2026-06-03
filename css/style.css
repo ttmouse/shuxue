@@ -932,7 +932,6 @@ body {
   font-size: 15px; font-weight: 800; color: var(--n700); text-align: left;
   letter-spacing: -0.01em;
 }
-.topic-card:first-child .topic-label { color: var(--primary); }
 
 /* Sub-topic list */
 .topic-subs { padding: 0; text-align: left; }
